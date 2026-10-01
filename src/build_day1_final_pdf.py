@@ -14,13 +14,20 @@ from reportlab.lib.utils import ImageReader
 
 R=Path(__file__).resolve().parents[1];OUT=R/'results/final';FIG=OUT/'figures';TAB=OUT/'tables'
 DEST=R/'deliverables/DS-MINI-Design-울산캠퍼스_2반-안동선+김민솔.pdf'
+APPENDIX_DEST=DEST.with_stem(DEST.stem+'-부록')
 FONT='/System/Library/AssetsV2/com_apple_MobileAsset_Font7/bad9b4bf17cf1669dde54184ba4431c22dcad27b.asset/AssetData/NanumGothic.ttc'
 pdfmetrics.registerFont(TTFont('NG',FONT,subfontIndex=0));pdfmetrics.registerFont(TTFont('NGB',FONT,subfontIndex=1))
 pdfmetrics.registerFontFamily('NG',normal='NG',bold='NGB',italic='NG',boldItalic='NGB')
 W,H=960,540
 INK='#20374B';MUTED='#647987';TEAL='#168579';BLUE='#316C9B';RED='#C5514E';ROSE='#C96972';AMBER='#C77E29';PURPLE='#8360A8';RULE='#DBE4EA';LIGHT='#F0F5F7';MINT='#EAF5F1'
-C=canvas.Canvas(str(DEST),pagesize=(W,H),pageCompression=1)
-C.setTitle('EDA to Model Strategy | 초기 100사이클 기반 배터리 수명 예측');C.setAuthor('안동선 · 김민솔 · 울산캠퍼스 2반');C.setSubject('핵심 변수 분포와 해석, EDA에서 피처 설계 및 모델 선택으로의 연결')
+def document_canvas(dest,title):
+    c=canvas.Canvas(str(dest),pagesize=(W,H),pageCompression=1)
+    c.setTitle(title);c.setAuthor('안동선 · 김민솔 · 울산캠퍼스 2반')
+    c.setSubject('핵심 변수 분포와 해석, EDA에서 피처 설계 및 모델 선택으로의 연결')
+    return c
+
+C=document_canvas(DEST,'EDA to Model Strategy | 초기 100사이클 기반 배터리 수명 예측')
+DOCUMENT='main';DOCUMENT_START=0
 PAGES=[];TEXT=[];INDEX=[]
 CHAPTER=0;CHAPTER_PAGE=0;APPENDIX_PAGE=0
 CHAPTERS={
@@ -60,10 +67,11 @@ def pic(name,x,y,w,h):
     C.drawImage(im,x+(w-dw)/2,H-y-dh,dw,dh,mask='auto')
 
 def sheet(tag,title,label,kind,chapter=0):
-    if PAGES:C.showPage()
+    if len(PAGES)>DOCUMENT_START:C.showPage()
     PAGES.append((tag,title));C.setFillColor(white);C.rect(0,0,W,H,fill=1,stroke=0)
-    INDEX.append(dict(page=len(PAGES),number=label,chapter=chapter,kind=kind,section=tag,title=title))
-    C.addPageLabel(len(PAGES)-1,prefix=str(len(PAGES)))
+    document_page=len(PAGES)-DOCUMENT_START
+    INDEX.append(dict(sequence=len(PAGES),document=DOCUMENT,page=document_page,number=label,chapter=chapter,kind=kind,section=tag,title=title))
+    C.addPageLabel(document_page-1,prefix=str(document_page))
     C.bookmarkPage(f'p{len(PAGES)}')
     if kind=='appendix' and APPENDIX_PAGE==1:
         C.addOutlineEntry('부록',f'p{len(PAGES)}',0,False)
@@ -90,7 +98,7 @@ def page(tag,title,scope=''):
     text(title,title_x,50,title_width,title_size,bold=True,leading=35,maxh=36)
     if scope:text(scope,42,101,875,11,MUTED,leading=15,maxh=16)
     line(40,505,880)
-    C.setFont('NGB',12);C.setFillColor(HexColor(INK));C.drawRightString(920,14,f'{len(PAGES):02d}')
+    C.setFont('NGB',12);C.setFillColor(HexColor(INK));C.drawRightString(920,14,f'{len(PAGES)-DOCUMENT_START:02d}')
 
 def chapter(number):
     global CHAPTER,CHAPTER_PAGE
@@ -332,6 +340,12 @@ for y,head,choice,why in [
 line(49,418,862)
 text('구간에 민감한 용량 기울기는 보류한다.\n검증 후 예측 수명이 짧은 셀의 점검 우선순위를 검토한다.',49,435,862,17,accent(),bold=True,leading=25)
 
+# Start the separate appendix PDF after the main report.
+C.save()
+MAIN_PAGE_COUNT=len(PAGES)
+DOCUMENT='appendix';DOCUMENT_START=len(PAGES)
+C=document_canvas(APPENDIX_DEST,'EDA to Model Strategy | 부록')
+
 # 02 - source page identity
 page('부록 · 데이터','배치별 구성','전체 139셀 · 수명 레이블 보유 129셀')
 pic('composition',40,159,572,260)
@@ -376,4 +390,5 @@ assert question_titles==['Q1.','Q2.','Q3.','Q4.','Q5.'],question_titles
 C.save()
 pd.DataFrame(INDEX).to_csv(OUT/'page_index.csv',index=False)
 (R/'tmp/pdfs/revision_text_geometry.json').write_text(json.dumps(TEXT,ensure_ascii=False,indent=2))
-print(f'Created {DEST} ({len(PAGES)} pages)')
+print(f'Created {DEST} ({MAIN_PAGE_COUNT} pages)')
+print(f'Created {APPENDIX_DEST} ({len(PAGES)-MAIN_PAGE_COUNT} pages)')
