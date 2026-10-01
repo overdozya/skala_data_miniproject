@@ -3,6 +3,7 @@
 Reads the verified aggregates/cell features; does not fit prediction models.
 """
 import json
+import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from day1_final_analysis import ROOT, OUT, F, T, setup, save, INK, TEAL, COL, GRID
@@ -53,7 +54,32 @@ def main():
         ax.set(title=title, xlabel=label, ylim=(500,1110));ax.grid(alpha=.18)
     axs[0].set_ylabel('기록 수명 (사이클)')
     save(fig, 'question_input_transform')
-    print('Created three presentation figures from existing DAY 1 evidence.')
+    # Compare the two inputs with the most B2 range departures, using the
+    # actual fixed training pool. The four-feature union is reported in the PDF.
+    split = pd.read_csv(ROOT/'data/processed/planned_day2_split.csv').merge(
+        cells, on=['cell_id','policy'], validate='one_to_one')
+    train = split[split.role=='train_cv']
+    b2 = cells[(cells.batch=='batch2_notion') & cells.cycle_life.notna()]
+    groups = [('B1 학습 · 28', train, COL['batch1']),
+              ('B2 standard · 30', b2[b2.protocol_family=='standard'], COL['batch2_notion']),
+              ('B2 new · 9', b2[b2.protocol_family=='newstructure'], TEAL)]
+    fig, axs = plt.subplots(1, 2, figsize=(8.8, 3.7), sharey=True)
+    rng = np.random.default_rng(20261001)
+    offsets = [rng.uniform(-.13,.13,len(g)) for _,g,_ in groups]
+    for ax, feature, title, xlabel in [
+        (axs[0], 'log10_dq_var', 'ΔQ 분산 · 범위 밖 18셀', 'log10 var(ΔQ)'),
+        (axs[1], 'second_c_rate', '둘째 C-rate · 범위 밖 25셀', '둘째 C-rate (C)')]:
+        ax.axvspan(train[feature].min(), train[feature].max(), color='#E4EEF5')
+        for i, ((_,g,color), offset) in enumerate(zip(groups, offsets)):
+            ax.scatter(g[feature], i+offset, color=color, s=34, alpha=.85)
+        ax.set(title=title, xlabel=xlabel, yticks=range(3),
+               yticklabels=[label for label,_,_ in groups], ylim=(2.5,-.5))
+        ax.tick_params(axis='both', labelsize=11)
+        ax.grid(axis='x',alpha=.15)
+    axs[1].axvline(4.4, color=COL['batch1'], ls=':', lw=1)
+    axs[1].text(4.4,2.42,'학습 상한 4.4',ha='center',va='bottom',fontsize=10,color=COL['batch1'])
+    save(fig, 'question_selected_input_support')
+    print('Created four presentation figures from existing DAY 1 evidence.')
 
 
 if __name__=='__main__':
