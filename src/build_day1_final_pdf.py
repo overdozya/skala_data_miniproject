@@ -223,9 +223,13 @@ takeaway('다음 비교: 정책만 쓴 모델에 ΔQ를 더했을 때, 새 정�
 # Feature Engineering: observation, role, and deferral are explicit.
 page('Feature Engineering','피처 선택 전략')
 text('첫 비교는 ΔQ 1개 / 정책 3개 / 결합 4개로 좁힌다.',46,138,868,23,bold=True,leading=32)
-para('ΔQ 1개','log10 var(ΔQ)\n전압별 변화 폭을 요약한다.\n평균·최솟값은 중복이 커 함께 넣지 않는다.',48,205,406,22,15)
-para('정책 3개','첫 C-rate · 둘째 C-rate · 전환 SOC\n충전 조건을 함께 반영해\nΔQ가 더하는 정보를 비교한다.',507,205,403,22,15)
-line(48,346,862)
+for x,head,body in [
+    (40,'ΔQ 1개','log10 var(ΔQ)\n전압별 변화 폭을 요약한다.\n평균·최솟값은 중복이 커 함께 넣지 않는다.'),
+    (492,'정책 3개','첫 C-rate · 둘째 C-rate · 전환 SOC\n충전 조건을 함께 반영해\nΔQ가 더하는 정보를 비교한다.'),
+]:
+    C.setFillColor(HexColor(MINT));C.setStrokeColor(HexColor('#D5E6E0'));C.setLineWidth(.8)
+    C.roundRect(x,H-193-150,428,150,11,fill=1,stroke=1)
+    para(head,body,x+24,211,380,22,15)
 text('보류한 변수',49,362,862,13,TEAL,bold=True)
 text('용량 기울기·고전류 비율',49,393,270,15,bold=True)
 text('구간 또는 배치가 바뀌면 관계가 달라졌다.',331,393,579,15)
