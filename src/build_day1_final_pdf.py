@@ -18,7 +18,7 @@ FONT='/System/Library/AssetsV2/com_apple_MobileAsset_Font7/bad9b4bf17cf1669dde54
 pdfmetrics.registerFont(TTFont('NG',FONT,subfontIndex=0));pdfmetrics.registerFont(TTFont('NGB',FONT,subfontIndex=1))
 pdfmetrics.registerFontFamily('NG',normal='NG',bold='NGB',italic='NG',boldItalic='NGB')
 W,H=960,540
-INK='#20374B';MUTED='#647987';TEAL='#168579';BLUE='#316C9B';RED='#C5514E';AMBER='#C77E29';PURPLE='#8360A8';RULE='#DBE4EA';LIGHT='#F0F5F7';MINT='#EAF5F1'
+INK='#20374B';MUTED='#647987';TEAL='#168579';BLUE='#316C9B';RED='#C5514E';ROSE='#C96972';AMBER='#C77E29';PURPLE='#8360A8';RULE='#DBE4EA';LIGHT='#F0F5F7';MINT='#EAF5F1'
 C=canvas.Canvas(str(DEST),pagesize=(W,H),pageCompression=1)
 C.setTitle('EDA to Model Strategy | 초기 100사이클 기반 배터리 수명 예측');C.setAuthor('안동선 · 김민솔 · 울산캠퍼스 2반');C.setSubject('핵심 변수 분포와 해석, EDA에서 피처 설계 및 모델 선택으로의 연결')
 PAGES=[];TEXT=[];INDEX=[]
@@ -26,12 +26,12 @@ CHAPTER=0;CHAPTER_PAGE=0;APPENDIX_PAGE=0
 CHAPTERS={
     1:('EDA','분포와 관계 탐색',BLUE),
     2:('EDA → 전략','관찰에서 선택으로',TEAL),
-    3:('모델 설계','선택 근거와 검증',INK),
+    3:('모델 설계','선택 근거와 검증',ROSE),
 }
 
-def text(s,x,y,w,size=15,color=INK,bold=False,leading=None,maxh=None):
+def text(s,x,y,w,size=15,color=INK,bold=False,leading=None,maxh=None,align='left'):
     s=s.replace('−','-').replace('–','-').replace('—','-')
-    p=Paragraph(s.replace('\n','<br/>'),ParagraphStyle('p',fontName='NGB' if bold else 'NG',fontSize=size,leading=leading or size*1.43,textColor=HexColor(color),wordWrap='CJK'))
+    p=Paragraph(s.replace('\n','<br/>'),ParagraphStyle('p',fontName='NGB' if bold else 'NG',fontSize=size,leading=leading or size*1.43,textColor=HexColor(color),wordWrap='CJK',alignment={'left':0,'center':1}[align]))
     _,ph=p.wrap(w,H)
     if maxh and ph>maxh+.1:raise ValueError(f'Page {len(PAGES)} text too tall: {s[:60]} ({ph}/{maxh})')
     if y+ph>499 and size>=11:raise ValueError(f'Page {len(PAGES)} bottom overflow: {s[:60]} ({y+ph})')
@@ -66,9 +66,8 @@ def page(tag,title,scope=''):
     else:
         CHAPTER_PAGE+=1;label=f'{CHAPTER}-{CHAPTER_PAGE}';chapter=CHAPTER;kind='body';color=CHAPTERS[CHAPTER][2]
     sheet(tag,title,label,kind,chapter)
-    rect(0,0,6,H,color)
     section='부록' if chapter=='A' else f'{chapter:02d} · {CHAPTERS[chapter][0]}'
-    text(section,40,24,875,11,color,bold=True,leading=16)
+    text(section,40,21,875,15,color,bold=True,leading=21)
     number_text=label+')'
     number_width=pdfmetrics.stringWidth(number_text,'NGB',25)
     title_x=40+number_width+10
@@ -79,7 +78,6 @@ def page(tag,title,scope=''):
     text(title,title_x,50,title_width,title_size,bold=True,leading=35,maxh=36)
     if scope:text(scope,42,101,875,11,MUTED,leading=15,maxh=16)
     line(40,505,880)
-    text(f'안동선 · 김민솔 · 울산캠퍼스 2반  |  {section}',42,516,620,8,MUTED,leading=10)
     C.setFont('NGB',12);C.setFillColor(HexColor(INK));C.drawRightString(920,14,f'{len(PAGES):02d}')
 
 def chapter(number):
@@ -96,12 +94,9 @@ def chapter(number):
 
 def question(number,prompt):
     sheet(f'Q{number}',f'Q{number}. {prompt}',f'Q{number}','question',1)
-    rect(0,0,8,H,BLUE)
-    text('01 · EDA',68,43,820,12,BLUE,bold=True)
-    line(69,161,59,BLUE,3)
-    text(f'Q{number}.',66,187,827,48,BLUE,bold=True,leading=62)
-    text(prompt.replace(' - ',' -\n'),69,280,824,32,bold=True,leading=47,maxh=102)
-    for i in range(1,6):rect(70+(i-1)*36,447,26,3,BLUE if i==number else RULE)
+    text('01 · EDA',40,21,875,15,BLUE,bold=True,leading=21)
+    text(f'Q{number}.',68,218,824,30,BLUE,bold=True,leading=42,align='center')
+    text(prompt,68,281,824,24,bold=True,leading=36,maxh=74,align='center')
 
 def takeaway(s,y=437,h=57,size=19):
     rect(40,y,880,h,MINT);rect(40,y,4,h,TEAL);text(s,57,y+12,845,size,TEAL,bold=True,leading=size*1.32,maxh=h-19)
@@ -128,8 +123,8 @@ text('DAY 1',68,43,600,12,TEAL,bold=True)
 text('EDA to Model Strategy',65,88,844,45,bold=True,leading=58)
 text('초기 100사이클 기반 배터리 수명 예측',69,161,823,17,MUTED,leading=25)
 line(69,254,824)
-for x,num,head,body in [(69,'01 · EDA','분포와 관계 탐색','Q1~Q5의 답을\n세 배치의 근거로 정리'),(350,'02 · EDA → 전략','관찰에서 선택으로','신호를 다시 검토하고\n남길 변수와 변환을 결정'),(631,'03 · 모델 설계','선택 근거와 검증','회귀·타깃을 정하고\n모델과 검증 조건을 설계')]:
-    text(num,x,282,250,12,TEAL,bold=True);text(head,x,314,260,20,bold=True);text(body,x,356,258,16,leading=25)
+for x,num,head,body,color in [(69,'01 · EDA','분포와 관계 탐색','Q1~Q5의 답을\n세 배치의 근거로 정리',BLUE),(350,'02 · EDA → 전략','관찰에서 선택으로','신호를 다시 검토하고\n남길 변수와 변환을 결정',TEAL),(631,'03 · 모델 설계','선택 근거와 검증','회귀·타깃을 정하고\n모델과 검증 조건을 설계',ROSE)]:
+    text(num,x,280,250,15,color,bold=True);text(head,x,314,260,20,bold=True);text(body,x,356,258,16,leading=25)
 text('울산캠퍼스 2반 · 안동선 · 김민솔',69,483,620,11,MUTED,leading=15)
 C.setFont('NG',11);C.setFillColor(HexColor(MUTED));C.drawRightString(893,42,'2026.10.01')
 
@@ -146,8 +141,8 @@ takeaway('B1에 없는 <500사이클 구간이 B2의 72%다. B1 검증만으로 
 page('Q1 · 이상치 셀','짧은 수명 셀의 초기 신호','B3 동일 정책 3셀 비교 · 3.7C(31%)-5.9C-newstructure')
 text('가장 짧게 끝난 c28은 초기 ΔQ 분산·온도·저항 증가도 가장 컸다.',43,134,872,21,bold=True,leading=29)
 pic('review_shortest_signals',40,183,880,226)
-text('초기 상태 차이를 의심할 근거는 있다. 다만 3셀 비교만으로 원인을 특정할 수는 없다.',49,417,856,15,leading=23)
-text('B1 c20: 534·동일 정책 559 / B2 c19: 392·동일 정책 408 → 한 셀만의 오류라는 증거는 약하다.',49,463,853,12,MUTED,leading=18)
+text('세 지표가 함께 높아, 초기 상태 차이를 짧은 수명의 원인 후보로 본다.',49,417,856,15,leading=23)
+text('B1 c20: 534·동일 정책 559 / B2 c19: 392·동일 정책 408 → 같은 정책의 동료 셀도 짧게 끝났다.',49,463,853,12,MUTED,leading=18)
 
 # 07 - source page identity
 question(2,'열화 곡선 - 방전 용량이 어떻게 감소하는가?')
@@ -162,11 +157,11 @@ pic('review_gap_windows',39,137,650,277)
 text('구간을 바꾸니\n감소 방향도\n바뀌었다.',714,176,201,24,TEAL,bold=True,leading=36)
 text('초기 용량 변화에는\n일시적 변동도\n섞여 있을 수 있다.',714,318,201,16,leading=26)
 takeaway('초기 용량 기울기를 일정한 열화 속도로 보기 어렵다. 주 입력에서는 보류한다.',y=435,h=60,size=17)
-text('짧은 구간 기울기를 100사이클 단위로 환산. 양수=감소, 음수=증가. 공백의 원인은 장비 로그가 필요하다.',47,411,865,10,MUTED,leading=14)
+text('기울기 단위: mAh/100사이클 · 양수=감소, 음수=증가',47,411,865,10,MUTED,leading=14)
 
 # 09 - source page identity
 question(3,'ΔQ(V) 곡선 - 초기 사이클에서 차이가 보이는가?')
-page('Q3','전압별 초기 신호','ΔQ(V)=Q100(V)-Q10(V) · 배치별 수명 상·하위 1/3 · Q1의 고정 수명 기준과 구분')
+page('Q3','전압별 초기 신호','ΔQ(V)=Q100(V)-Q10(V) · 배치별 수명 상·하위 1/3 비교')
 pic('dq_all',36,137,889,270)
 text('총용량 변화보다, 전압에 따라 변화가 달라지는 모양을 후보로 삼았다.',46,418,868,20,bold=True,leading=28)
 text('짧은 수명 쪽의 변화 폭이 더 크다 → 1,000점 곡선을 분산 1개로 요약한다.',47,462,868,14,TEAL,leading=21)
@@ -179,13 +174,12 @@ pic('policy_mean_scatter',36,130,889,251)
 text('빠른 충전과 짧은 수명의 관계는 배치마다 달랐다.',45,395,870,20,bold=True,leading=29)
 text('첫 C-rate ↔ 수명: B1 -0.48 / B2 +0.06 / B3 -0.23',47,434,865,14,TEAL,bold=True)
 text('첫 C-rate ↔ 초기 ΔQ 분산: B1 +0.54 / B2 -0.03 / B3 +0.29',47,461,865,13,leading=19)
-text('동일한 첫 전류에서도 SOC·둘째 전류가 달랐다. 첫 전류 하나의 인과효과로 해석하기 어렵다.',47,489,865,9,MUTED,leading=12)
+text('같은 첫 C-rate에서도 전환 SOC·둘째 C-rate가 달라, 세 조건을 함께 비교한다.',47,489,865,9,MUTED,leading=12)
 
 # 05 - source page identity
 page('Q4 · 같은 조건 비교','같은 충전 조건의 배치 비교','4.8C(80%)-4.8C 고정 · 점은 평균, 선은 관측 범위')
 pic('same_policy',38,144,576,281)
 para('충전 정책만 맞춰도\n차이는 남는다.','B2 안에서도 표기에 따라 수명이\n달랐고, 같은 newstructure끼리도\nB2와 B3가 달랐다.',648,151,266,23,15)
-text('같은 정책·표기로도 차이가 남아,\n정책만으로 배치 차이를\n설명하기는 어렵다.',648,345,268,14,MUTED,leading=21)
 takeaway('같은 충전 정책으로도 배치·실험집단 차이가 남는다.',size=18)
 
 # 13 - source page identity
@@ -216,18 +210,18 @@ chapter(2)
 page('Q3·Q5 → 피처 검토','집단을 나눠 반례 찾기','B2 standard 30셀 / newstructure 9셀 · 집단 안에서 상·하위 1/3을 다시 선택')
 text('ΔQ가 구분한 것은 수명뿐 아니라, 서로 다른 실험 집단일 수도 있다.',44,133,870,23,bold=True,leading=32)
 pic('dq_within_b2',36,201,586,263)
-para('같은 표기끼리 보니\n곡선의 차이가 줄었다.','전체의 강한 상관을 보고\n개별 셀의 수명까지 잘 맞힌다고\n판단하기에는 이르다.',658,218,258,20,15)
-text('특히 newstructure는 비교선 하나에 3셀이다. 차이가 작다는 이유로 신호가 없다고 단정하지 않는다.',47,478,865,11,MUTED,leading=16)
+para('같은 표기끼리 보니\n곡선의 차이가 줄었다.','집단 차이가 ΔQ와 수명 관계에\n섞여 있다. 집단을 나눠\nΔQ의 추가 정보를 확인한다.',658,218,258,20,15)
+text('newstructure의 상·하위 비교는 각각 3셀이다.',47,478,865,11,MUTED,leading=16)
 
 # 11 - source page identity
 page('Q3·Q4·Q5 → 입력 비교','정책 안에서 다시 비교','B1 종료 근접 중 반복 정책 32셀·16정책 · 양쪽에 같은 셀 사용')
 pic('review_policy_centered',36,136,592,273)
-para('정책 차이를 빼자\n상관이 크게 약해졌다.','같은 정책 안에서는 수명 차이가\n작고 표본도 적다. ΔQ의 추가\n정보가 있는지는 아직 불확실하다.',660,152,255,22,15)
-text('정책 평균 제거 후 95% 재표집 구간\n-0.59~+0.38. 정책이 모든 차이를\n설명한다는 증명은 아니다.',660,345,253,12,MUTED,leading=19)
+para('정책 차이를 빼자\n상관이 크게 약해졌다.','같은 정책 안의 수명 차이는 작고,\n상관의 재표집 구간은\n0을 가로지른다.',660,152,255,22,15)
+text('정책 평균 제거 후 95% 재표집 구간\n-0.59~+0.38',660,345,253,12,MUTED,leading=19)
 takeaway('다음 비교: 정책만 쓴 모델에 ΔQ를 더했을 때, 새 정책의 오차도 줄어드는가?',size=18)
 
 # Feature Engineering: observation, role, and deferral are explicit.
-page('Feature Engineering','피처 선택 전략','Q3~Q5의 관찰 → 입력 구성 · 세 비교에 같은 교차검증 사용')
+page('Feature Engineering','피처 선택 전략')
 text('첫 비교는 ΔQ 1개 / 정책 3개 / 결합 4개로 좁힌다.',46,138,868,23,bold=True,leading=32)
 para('ΔQ 1개','log10 var(ΔQ)\n전압별 변화 폭을 요약한다.\n평균·최솟값은 중복이 커 함께 넣지 않는다.',48,205,406,22,15)
 para('정책 3개','첫 C-rate · 둘째 C-rate · 전환 SOC\n충전 조건을 함께 반영해\nΔQ가 더하는 정보를 비교한다.',507,205,403,22,15)
@@ -236,11 +230,10 @@ text('보류한 변수',49,362,862,13,TEAL,bold=True)
 text('용량 기울기·고전류 비율',49,393,270,15,bold=True)
 text('구간 또는 배치가 바뀌면 관계가 달라졌다.',331,393,579,15)
 text('QD·IR·온도·충전 시간',49,431,270,15,bold=True)
-text('추가 정보는 미확정. 소표본에서 첫 비교의 수를 제한한다.',331,431,579,15)
-text('Q5에서 보인 약하거나 불안정한 상관만으로 무용성을 확정하지 않는다. 후보 확대는 첫 비교 뒤로 미룬다.',49,478,861,11,MUTED,leading=16)
+text('소표본에서 비교 수를 제한해 후속 후보로 둔다.',331,431,579,15)
 
 # 15 - source page identity
-page('설계','입력 변환과 관계 형태','B1 종료 근접 36셀 · 산점도는 관계 탐색이며 예측 성능이 아니다')
+page('설계','입력 변환과 관계 형태','B1 종료 근접 36셀')
 pic('question_input_transform',36,142,602,272)
 text('큰 분산값을 압축해\n단순한 관계부터\n검증한다.',670,161,244,23,TEAL,bold=True,leading=34)
 text('입력 분산의 왜도\n+1.11 → 로그 후 +0.22',670,307,244,16,bold=True,leading=25)
@@ -250,7 +243,7 @@ takeaway('입력은 log10 var(ΔQ)로 구성한다. 수명 자체의 변환은 �
 chapter(3)
 
 # Regression/Classification and target definition, following the feature plan.
-page('Regression vs Classification','예측 방식과 타깃 선택','초기 100사이클을 관측한 시점의 예측 문제')
+page('Regression vs Classification','예측 방식과 타깃 선택')
 target_cards=[
     (137,'회귀 선택 이유','회귀로 총 Cycle Life를 예측한다.',
      '분류 기준 550사이클 미만은 B1에서 1셀뿐이다.\n이 표본으로 분류 경계를 학습하기 어렵다.',
@@ -277,17 +270,17 @@ pic('endpoint_labels',40,136,542,299)
 text('레이블 처리 후 학습 후보',623,145,290,14,MUTED,bold=True)
 text('46 → 36셀',619,178,300,34,TEAL,bold=True)
 text('종료에서 멀리 끝난 10셀은\n수명 정답으로 쓰지 않는다.',623,242,290,19,bold=True,leading=28)
-text('남긴 36셀도 정확한 종료 관측값은\n아니다. 저장 수명을 종료의\n근사값으로 사용한다.',623,329,289,15,leading=23)
+text('36셀의 저장 수명을\n종료 수명의 근사값으로 사용한다.',623,329,289,15,leading=23)
 takeaway('레이블 신뢰도를 높이는 대신, 긴 수명·저속 충전 셀이 줄어드는 대가가 남는다.',size=17)
 
 # 17 - source page identity
-page('Modeling Strategy · 후보 모델','모델 선택 전략','DAY 2에 실행할 비교 계획 · 오늘은 모델 학습과 성능 평가를 하지 않음')
+page('Modeling Strategy · 후보 모델','모델 선택 전략')
 text('적은 표본과 입력 중복을 고려해 Ridge부터 검증한다.',46,138,866,24,bold=True,leading=33)
 for x,n,head,body in [(47,'1','기준선','학습 수명의 1/y 가중 중앙값\n상수 예측보다 나은가?'),(345,'2','입력 비교','ΔQ만 / 정책만 / 결합\nΔQ가 실제로 보탬이 되는가?'),(643,'3','조건부 확장','검증 잔차에 곡률이 반복될 때\n깊이 2의 트리만 추가 비교')]:
     line(x,215,270,TEAL,2);text(n,x,235,32,23,TEAL,bold=True);text(head,x+40,234,225,20,bold=True);text(body,x,282,267,15,leading=25)
 text('채택 기준',49,376,150,13,TEAL,bold=True)
 text('같은 CV에서 평균 MAPE 1%p 이상 감소 + 4개 중 3개 폴드에서 개선.\n차이가 작으면 입력이 적은 모델을 유지한다.',49,406,862,18,bold=True,leading=28)
-text('1%p는 사전 선택 규칙이며 통계적 유의성 기준은 아니다. α={0.1,1,10,100}, raw/log 수명을 같은 분할에서 비교한다.',49,480,864,10,MUTED,leading=14)
+text('비교 설정: α={0.1,1,10,100} · raw/log 수명 · 같은 정책 그룹 CV',49,480,864,10,MUTED,leading=14)
 
 # 18 - source page identity
 page('Modeling Strategy · 분할과 전처리','학습·검증 분할','정책 단위로 분리 · seed 20261001 · 학습 28셀 / 홀드아웃 8셀')
@@ -303,16 +296,15 @@ pic('review_input_support',34,141,615,268)
 text('새 배치에는\n배우지 못한 입력이\n많이 들어온다.',684,159,232,23,bold=True,leading=34)
 text('ΔQ 분산만 보아도\n학습 범위 밖인 B2 셀\n<b>18 / 39</b>',684,313,232,18,TEAL,leading=29)
 takeaway('범위 안·밖의 오차를 나눠 보고, 범위 밖 셀은 추가 확인 대상으로 표시한다.',size=18)
-text('변수별 최솟값~최댓값 기준의 단순 진단이다. 범위 안이라고 익숙한 조합이거나 정확한 예측이라는 뜻은 아니다.',45,411,868,10,MUTED,leading=14)
+text('입력 범위: 고정 학습 28셀의 변수별 최솟값~최댓값',45,411,868,10,MUTED,leading=14)
 
 # 19 - source page identity
-page('Modeling Strategy · 평가','성능 평가 계획','아래 항목은 보고 계획이다. 현재 성능 수치는 없다.')
-table(['항목','어떻게 읽을 것인가'],[['Train · B1 CV','4개 검증 폴드의 MAPE 평균과 편차'],['Valid · B1 홀드아웃','8셀의 MAPE·MAE, 특히 짧은 수명의 오차'],['Test · B2','전체 / standard·newstructure / 입력 범위 안·밖'],['Gap · Train-Valid','Valid - CV : 새 정책에서 얼마나 달라졌는가'],['Gap · Valid-Test','Test - Valid : 배치 변화에서 얼마나 달라졌는가'],['Gap · Target-Test','Test - 9.1 : 논문과 데이터·분할 차이까지 설명']],45,139,[250,618],rowh=36,size=13)
+page('Modeling Strategy · 평가','성능 평가 계획')
+table(['평가 항목','확인할 내용'],[['Train · B1 CV','4개 검증 폴드의 MAPE 평균과 편차'],['Valid · B1 홀드아웃','8셀의 MAPE·MAE, 특히 짧은 수명의 오차'],['Test · B2','전체 / standard·newstructure / 입력 범위 안·밖'],['Gap · Train-Valid','Valid - CV : 새 정책에서의 MAPE 변화 (%p)'],['Gap · Valid-Test','Test - Valid : 배치가 바뀔 때의 MAPE 변화 (%p)'],['Gap · Target-Test','Test - 9.1 : 논문 기준과의 MAPE 차이 (%p)']],45,139,[250,618],rowh=36,size=13)
 text('수명을 길게 잘못 예측하면 점검이 늦어질 수 있다. 과대 예측률도 함께 보고한다.',47,413,866,19,bold=True,leading=28)
-text('Gap은 %p. EDA에서 B2 레이블도 보았으므로 완전한 블라인드 평가로 부르지 않는다.',47,474,866,12,MUTED,leading=18)
 
 # The conclusion recalls the exact experiment, not only its cautions.
-page('결론','분석에서 정한 선택','Q1~Q5 → 피처 선별 → 회귀 타깃 → 모델·검증 설계')
+page('결론','분석에서 정한 선택')
 text('ΔQ의 추가 정보를 작은 모델로 검증한다.',47,139,865,25,bold=True,leading=34)
 for y,head,choice,why in [
  (207,'입력','ΔQ만 / 정책만 / 결합','집단·정책 차이와 구분되는 추가 정보가 있는지 확인'),
@@ -323,21 +315,19 @@ for y,head,choice,why in [
     text(why,185,y+31,720,13,MUTED,leading=20)
 line(49,418,862)
 text('구간에 민감한 용량 기울기는 보류한다.\n검증 후 예측 수명이 짧은 셀의 점검 우선순위를 검토한다.',49,435,862,17,TEAL,bold=True,leading=25)
-text('자동 교체 시점·비용 절감은 후속 종료 기록과 실제 운전 조건의 검증이 필요하다.',49,488,862,9,MUTED,leading=12)
 
 # 02 - source page identity
 page('부록 · 데이터','배치별 구성','전체 139셀 · 수명 레이블 보유 129셀')
 pic('composition',40,159,572,260)
 para('학습에 없는 집단이\n평가에 들어온다.','B2의 newstructure 9셀을\n별도로 평가해 B1의 관계가\n확장되는지 확인한다.',646,156,272,23,16)
-text('newstructure는 원본의 표기다.\n물리적으로 무엇이 바뀌었는지는\n이 자료로 확인되지 않았다.',646,358,270,13,MUTED,leading=21)
 takeaway('newstructure는 원본의 실험집단 표기다. B1에는 없어 해당 효과를 학습할 수 없다.',size=18)
 
 # 21 - source page identity
-page('부록 · Q4','Batch 1 정책별 수명','전체 레이블 46셀 · 범위는 최솟값~최댓값이며 신뢰구간이 아님')
+page('부록 · Q4','Batch 1 정책별 수명','전체 레이블 46셀 · 범위: 최솟값~최댓값')
 pol=pd.read_csv(TAB/'all_policy_means.csv');g=pol[pol.batch=='batch1'].sort_values('mean')
 rows=[[r.policy,str(r.n),f'{r.mean:.1f}',f'{r.minimum:.0f}~{r.maximum:.0f}'] for r in g.itertuples()]
 table(['충전 정책','n','평균 수명','범위'],rows,44,132,[236,41,82,102],rowh=14.8,size=9.2,headsize=9)
-para('정책 하나당\n대부분 2셀이다.','평균 순위를 곧바로\n최적 충전 조건으로 읽기 어렵다.\n첫 전류가 같아도 SOC와\n둘째 전류가 함께 달라진다.',552,164,352,24,17)
+para('정책 하나당\n대부분 2셀이다.','첫 전류가 같아도 SOC와\n둘째 전류가 함께 달라진다.\n정책 전체의 조합으로 비교한다.',552,164,352,24,17)
 text('B1 첫 C-rate와 수명의 상관\n전체 -0.48 → 종료 근접 36셀 -0.24\n레이블을 고르는 방식도 관계를 바꾼다.',552,383,352,14,MUTED,leading=23)
 
 # 22 - source page identity
@@ -349,20 +339,19 @@ for x,b,title in [(44,'batch2_notion','B2 · 39셀 / 12정책'),(503,'batch3','B
 text('B2의 동일 기본 정책 3쌍 모두\nnew 표기의 평균 수명이 더 길었다.\n표기와 함께 바뀐 조건은 분리되지 않았다.',512,402,397,16,leading=25)
 
 # 24 - source page identity
-page('부록 · 품질','원시 기록과 피처 점검','곡선의 원시 전압·용량을 다시 열고 동일 전압 구간에서 비교')
-table(['점검','확인 결과','처리·남은 범위'],[
+page('부록 · 품질','원시 기록과 피처 점검','10·100번 사이클 · 원시 Q(V)와 제공 곡선을 동일 전압 구간에서 비교')
+table(['점검','확인 결과','처리 기준'],[
  ['IR=0','B2 6/39셀','결측으로 처리. 상관은 유효 33셀'],
  ['원시 Qd=0','B2 6셀의 방전 중 간헐적 0','누적 방전 후 0인 표본만 재구성에서 제외'],
  ['Qdlin 대응','원시 Q(V) 재구성과 대체로 일치','2.05~3.45V에서 시작값을 맞춰 형태 비교'],
- ['전류 단위','평탄부는 정책 C-rate 값과 일치','저장 스케일로 분석. A 단위로 단정하지 않음'],
+ ['전류 단위','평탄부는 정책 C-rate 값과 일치','정책값과 대응하는 저장 스케일로 분석'],
  ['B3 품질 제외','44 → 40셀, ΔQ 상관 -0.80 → -0.76','원저자 제외 규칙의 민감도로 별도 보고']],44,137,[124,300,449],rowh=40,size=12,headsize=11)
-text('시작점 보정만으로 끝내지 않고 원시 곡선과 비교했다.\nB3의 곡선 형태 차이 RMSE 중앙값은 0.46 mAh였다.',49,399,861,19,bold=True,leading=28)
-text('10·100번 사이클 비교. 이는 사용 구간의 수치적 대응 확인이며 배치별 실험 조건이 같다는 증거는 아니다.',49,472,861,11,MUTED,leading=17)
+text('원시 곡선과 제공 곡선의 형태를 직접 비교했다.\nB3의 곡선 형태 차이 RMSE 중앙값은 0.46 mAh였다.',49,399,861,19,bold=True,leading=28)
 
 # 25 - source page identity
-page('부록','분석 방법과 출처','원본·전사문은 로컬 보관 · 코드·집계표·PDF로 재현')
+page('부록','분석 방법과 출처')
 para('계산 기준','ΔQ: 물리적 10·100번 사이클, 1,000점 전압 격자.\n분산 ddof=0, 원본 격자는 3.5→2.0V.\n\n용량 기울기: Theil-Sen, QD 0.5~2.0 Ah.\n구간별 기울기를 mAh/100사이클로 환산.\n\nknee: 100사이클 이후 7점 중앙값,\n두 직선 SSE 20% 감소·감소 기울기 1.5배.\n\n전류 시간 비율: 첫 방전 전, 시간차 0~1분,\nI>0.1 구간 중 기준 전류를 넘는 시간 비율.',46,138,440,17,12)
-para('근거 자료','[1] 노션 DAY 1 질문·평가표·EDA 예시\n[2] 강의 전사문 11:01~11:15\n[3] Severson et al., Nature Energy (2019)\n[4] 원저자 LoadData.m\n\n사용 파일: 2017-05-12 / 2018-02-20 /\n2018-04-12의 updated MAT.\n\n2017-06-30 연속 기록은 미확보.\n원논문은 연속 기록 연결과 혼합 분할을\n사용해 과제의 B1 학습·B2 평가와 다르다.',529,138,380,17,12)
+para('근거 자료','[1] 노션 DAY 1 질문·평가표·EDA 예시\n[2] 강의 전사문 11:01~11:15\n[3] Severson et al., Nature Energy (2019)\n[4] 원저자 LoadData.m\n\n사용 파일: 2017-05-12 / 2018-02-20 /\n2018-04-12의 updated MAT.\n\n과제: B1 학습·B2 평가\n원논문: 연속 기록 연결·혼합 분할',529,138,380,17,12)
 for x,label,url in [(48,'노션 과제','https://actually-war-1ea.notion.site/DS-Mini-Project-32d7f4c8669380338a27f90c471c1fcb'),(227,'논문','https://www.nature.com/articles/s41560-019-0356-8'),(348,'원저자 코드','https://github.com/rdbraatz/data-driven-prediction-of-battery-cycle-life-before-capacity-degradation/blob/master/LoadData.m'),(550,'재현 코드·집계표','https://github.com/overdozya/skala_data_miniproject')]:
     text(label+' ↗',x,473,185,12,TEAL,bold=True);C.linkURL(url,(x,H-493,x+177,H-469),relative=0,thickness=0)
 
