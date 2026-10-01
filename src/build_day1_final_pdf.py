@@ -123,7 +123,12 @@ def question(number,prompt):
     text(prompt,68,281,824,24,bold=True,leading=36,maxh=74,align='center')
 
 def takeaway(s,y=437,h=57,size=19):
-    rect(40,y,880,h,theme()['tint']);rect(40,y,4,h,accent());text(s,57,y+12,845,size,accent(),bold=True,leading=size*1.32,maxh=h-19)
+    rect(40,y,880,h,theme()['tint']);rect(40,y,4,h,accent())
+    text('시사점',57,y+(h-18)/2,66,13,accent(),bold=True,leading=18)
+    C.setStrokeColor(HexColor(theme()['border']));C.setLineWidth(1)
+    C.line(132,H-y-11,132,H-y-h+11)
+    ph=Paragraph(s,ParagraphStyle('measure',fontName='NGB',fontSize=size,leading=size*1.32,wordWrap='CJK')).wrap(752,H)[1]
+    text(s,149,y+(h-ph)/2,752,size,accent(),bold=True,leading=size*1.32,maxh=h-16)
 
 def para(head,body,x,y,w,headsize=21,size=15,color=None):
     end=text(head,x,y,w,headsize,color or accent(),bold=True,leading=headsize*1.35)
@@ -169,7 +174,7 @@ question(1,'Cycle Life 분포는 어떻게 생겼는가?')
 page('Q1','Cycle Life 분포','레이블 보유 B1 46셀 / B2 39셀 / B3 44셀 · 동일한 150~2,300 구간')
 pic('life_histogram',36,126,889,251)
 table(['수명 구간','B1','B2','B3'],[['500 미만','0 / 46','28 / 39 (71.8%)','0 / 44'],['1,000 초과','10 / 46 (21.7%)','3 / 39 (7.7%)','23 / 44 (52.3%)']],49,372,[210,212,212,212],rowh=22,size=11)
-takeaway('B1에 없는 <500사이클 구간이 B2의 72%다. B1 검증만으로 이 구간을 판단하기 어렵다.',y=450,h=43,size=16)
+takeaway('B1에 없는 단수명 구간은 B2에서 따로 평가한다.',y=450,h=43,size=16)
 
 # 06 - source page identity
 page('Q1 · 이상치 셀','짧은 수명 셀의 초기 신호','B3 동일 정책 3셀 비교 · 3.7C(31%)-5.9C-newstructure')
@@ -190,7 +195,7 @@ page('Q2 · 초기 열화 해석','기록 공백과 초기 변화','B2 레이블
 pic('review_gap_windows',39,137,650,277)
 text('구간을 바꾸니\n감소 방향도\n바뀌었다.',714,176,201,24,accent(),bold=True,leading=36)
 text('초기 용량 변화에는\n일시적 변동도\n섞여 있을 수 있다.',714,318,201,16,leading=26)
-takeaway('초기 용량 기울기를 일정한 열화 속도로 보기 어렵다. 주 입력에서는 보류한다.',y=435,h=60,size=17)
+takeaway('용량 기울기는 주 입력에서 보류하고, 전압별 변화 형태를 비교한다.',y=435,h=60,size=17)
 text('기울기 단위: mAh/100사이클 · 양수=감소, 음수=증가',47,411,865,10,MUTED,leading=14)
 
 # 09 - source page identity
@@ -214,7 +219,7 @@ text('같은 첫 C-rate에서도 전환 SOC·둘째 C-rate가 달라, 세 조건
 page('Q4 · 같은 조건 비교','같은 충전 조건의 배치 비교','4.8C(80%)-4.8C 고정 · 점은 평균, 선은 관측 범위')
 pic('same_policy',38,144,576,281)
 para('충전 정책만 맞춰도\n차이는 남는다.','B2 안에서도 표기에 따라 수명이\n달랐고, 같은 newstructure끼리도\nB2와 B3가 달랐다.',648,151,266,23,15)
-takeaway('같은 충전 정책으로도 배치·실험집단 차이가 남는다.',size=18)
+takeaway('B2는 standard·newstructure별로 평가해 집단에 따라 오차가 달라지는지 본다.',size=16)
 
 # 13 - source page identity
 page('Q4 · 전류 패턴과 열화','실제 전류 패턴','위: 대표 셀 10번 사이클 · 아래: 5개 사이클 × 3개 고전류 기준의 상관 범위')
@@ -236,7 +241,7 @@ page('Q5 · 다중공선성','피처 사이의 중복','B1 종료 근접 36셀(�
 pic('question_feature_redundancy',34,160,560,267)
 para('강한 피처 세 개가\n서로 다른 정보는 아니다.','ΔQ 분산·평균·최솟값은\n같은 셀을 비슷하게 구분한다.\n요약값은 하나부터 비교한다.',637,152,279,22,15)
 text('첫 C-rate와 전환 SOC도\n함께 움직여, 각각의 효과를\n분리해 읽기 어렵다.',637,350,275,15,leading=23)
-takeaway('ΔQ 요약값은 하나로 줄이고, 정책 변수의 중복은 모델 설계에 반영한다.',size=18)
+takeaway('ΔQ는 분산 하나로 줄이고, 정책 변수의 중복은 정규화 회귀로 다룬다.',size=17)
 
 chapter(2)
 
@@ -252,7 +257,7 @@ page('Q3·Q4·Q5 → 입력 비교','정책 안에서 다시 비교','B1 종료 
 pic('review_policy_centered',36,136,592,273)
 para('정책 차이를 빼자\n상관이 크게 약해졌다.','같은 정책 안의 수명 차이는 작고,\n상관의 재표집 구간은\n0을 가로지른다.',660,152,255,22,15)
 text('정책 평균 제거 후 95% 재표집 구간\n-0.59~+0.38',660,345,253,12,MUTED,leading=19)
-takeaway('다음 비교: 정책만 쓴 모델에 ΔQ를 더했을 때, 새 정책의 오차도 줄어드는가?',size=18)
+takeaway('정책만 / ΔQ만 / 결합을 비교해, ΔQ가 더하는 예측 정보를 검증한다.',size=17)
 
 # Feature Engineering: observation, role, and deferral are explicit.
 page('Feature Engineering','피처 선택 전략')
@@ -277,7 +282,7 @@ pic('question_input_transform',36,142,602,272)
 text('큰 분산값을 압축해\n단순한 관계부터\n검증한다.',670,161,244,23,accent(),bold=True,leading=34)
 text('입력 분산의 왜도\n+1.11 → 로그 후 +0.22',670,307,244,16,bold=True,leading=25)
 text('로그 후에도 정책 차이와\n남은 곡률은 따로 확인해야 한다.',670,386,244,13,MUTED,leading=21)
-takeaway('입력은 log10 var(ΔQ)로 구성한다. 수명 자체의 변환은 별도로 비교한다.',size=17)
+takeaway('log10 var(ΔQ)를 입력으로 쓰고, 원래 수명·로그 수명은 같은 검증에서 비교한다.',size=16)
 
 chapter(3)
 
@@ -310,16 +315,25 @@ text('레이블 처리 후 학습 후보',623,145,290,14,MUTED,bold=True)
 text('46 → 36셀',619,178,300,34,accent(),bold=True)
 text('종료에서 멀리 끝난 10셀은\n수명 정답으로 쓰지 않는다.',623,242,290,19,bold=True,leading=28)
 text('36셀의 저장 수명을\n종료 수명의 근사값으로 사용한다.',623,329,289,15,leading=23)
-takeaway('레이블 신뢰도를 높이는 대신, 긴 수명·저속 충전 셀이 줄어드는 대가가 남는다.',size=17)
+takeaway('종료 근접 36셀을 학습·검증에 쓰고, 줄어든 장수명·저속 충전 범위를 확인한다.',size=16)
 
 # 17 - source page identity
-page('Modeling Strategy · 후보 모델','모델 선택 전략')
-text('적은 표본과 입력 중복을 고려해 Ridge부터 검증한다.',46,138,866,24,bold=True,leading=33)
-for x,n,head,body in [(47,'1','기준선','학습 수명의 1/y 가중 중앙값\n상수 예측보다 나은가?'),(345,'2','입력 비교','ΔQ만 / 정책만 / 결합\nΔQ가 실제로 보탬이 되는가?'),(643,'3','조건부 확장','검증 잔차에 곡률이 반복될 때\n깊이 2의 트리만 추가 비교')]:
-    line(x,215,270,accent(),2);text(n,x,235,32,23,accent(),bold=True);text(head,x+40,234,225,20,bold=True);text(body,x,282,267,15,leading=25)
-text('채택 기준',49,376,150,13,accent(),bold=True)
-text('같은 CV에서 평균 MAPE 1%p 이상 감소 + 4개 중 3개 폴드에서 개선.\n차이가 작으면 입력이 적은 모델을 유지한다.',49,406,862,18,bold=True,leading=28)
-text('비교 설정: α={0.1,1,10,100} · raw/log 수명 · 같은 정책 그룹 CV',49,480,864,10,MUTED,leading=14)
+page('Modeling Strategy · 선정 근거','모델 선택 근거')
+table(['EDA에서 확인한 근거','모델에 필요한 조건','설계 결정'],[
+    ['학습 28셀, CV 학습은 21셀\n후보 36셀: 첫 C-rate-SOC ρ=-0.88',
+     '적은 표본에서 계수가 크게\n흔들리지 않도록 제약',
+     'L2 정규화로 계수 축소\nRidge를 우선 후보로 설정'],
+    ['정책 내부 ΔQ 상관 -0.11\n입력별 추가 기여는 검증 대상',
+     '일부 계수를 0으로 줄이는 것이\n예측에 도움이 되는지 비교',
+     'L1+L2 정규화로 선택·축소\nElastic Net을 보조 후보로 설정'],
+    ['입력 로그 변환: 왜도 +1.11→+0.22\n변환 후에도 관계 형태 점검 필요',
+     '선형 추세를 먼저 검증하고\n남는 비선형에만 복잡도 추가',
+     '검증 잔차에 곡률이 반복되면\n얕은 회귀트리를 추가 비교'],
+    ['같은 정책에서도 배치 차이 존재\n입력 4개 기준 B2 범위 밖 29/39셀',
+     '입력의 추가 정보와\n새 조건에서의 오차를 구분',
+     '입력 3구성·정책 그룹 검증\n집단별·입력 범위별 성능 보고'],
+],44,132,[305,285,282],rowh=59,size=13,headsize=13)
+takeaway('정규화 회귀로 기준을 세우고, 변수 축소와 비선형의 이득을 각각 검증한다.',y=448,h=46,size=16)
 
 # 18 - source page identity
 page('Modeling Strategy · 분할과 전처리','학습·검증 분할','정책 단위로 분리 · seed 20261001 · 학습 28셀 / 홀드아웃 8셀')
@@ -336,25 +350,38 @@ text('입력 4개 중 하나라도\n학습 범위 밖인 B2 셀',679,151,238,16,
 text('29 / 39셀',675,217,245,34,accent(),bold=True,leading=46)
 text('정책 변수의 차이도 크다.\n정책을 넣은 모델 역시\n새 충전 조건에서의\n성능을 확인해야 한다.',679,295,238,17,bold=True,leading=27)
 text('비교 입력: ΔQ 분산 · 첫 C-rate · 둘째 C-rate · 전환 SOC',45,412,868,11,MUTED,leading=16)
-takeaway('입력을 늘릴 때 전체 오차와 범위 밖 오차를 함께 비교한다. 범위 밖 셀은 추가 확인 대상으로 둔다.',size=16)
+takeaway('후보별로 전체·범위 밖 오차를 함께 보고, 범위 밖 셀은 추가 확인 대상으로 둔다.',size=16)
 
 # 19 - source page identity
 page('Modeling Strategy · 평가','성능 평가 계획')
 table(['평가 항목','확인할 내용'],[['Train · B1 CV','4개 검증 폴드의 MAPE 평균과 편차'],['Valid · B1 홀드아웃','8셀의 MAPE·MAE, 특히 짧은 수명의 오차'],['Test · B2','전체 / 실험집단별 / 사용 입력의 범위 안·밖'],['Gap · Train-Valid','Valid - CV : 새 정책에서의 MAPE 변화 (%p)'],['Gap · Valid-Test','Test - Valid : 배치가 바뀔 때의 MAPE 변화 (%p)'],['Gap · Target-Test','Test - 9.1 : 논문 기준과의 MAPE 차이 (%p)']],45,139,[250,618],rowh=36,size=13)
 text('수명을 길게 잘못 예측하면 점검이 늦어질 수 있다. 과대 예측률도 함께 보고한다.',47,413,866,19,bold=True,leading=28)
 
-# The conclusion recalls the exact experiment, not only its cautions.
-page('결론','분석에서 정한 선택')
-text('ΔQ의 추가 정보를 작은 모델로 검증한다.',47,139,865,25,bold=True,leading=34)
-for y,head,choice,why in [
- (207,'입력','ΔQ만 / 정책만 / 결합','집단·정책 차이와 구분되는 추가 정보가 있는지 확인'),
- (279,'모델','총 수명 회귀 · Ridge','소표본과 입력 중복을 고려해 정규화부터 적용'),
- (351,'검증','새 정책 → 다른 배치','실험집단별·입력 범위 안팎의 오차를 구분')]:
-    text(head,49,y,125,17,accent(),bold=True)
-    text(choice,184,y-2,721,21,bold=True,leading=29)
-    text(why,185,y+31,720,13,MUTED,leading=20)
-line(49,418,862)
-text('구간에 민감한 용량 기울기는 보류한다.\n검증 후 예측 수명이 짧은 셀의 점검 우선순위를 검토한다.',49,435,862,17,accent(),bold=True,leading=25)
+# Conclude with an explicit, evidence-linked candidate list rather than a
+# preselected final model. Candidate comparison remains a DAY 2 plan.
+page('결론 · 후보 모델','후보 모델과 비교 계획')
+text('Ridge를 기준으로, 변수 축소와 비선형의 추가 이득을 비교한다.',47,123,865,20,bold=True,leading=29)
+rect(44,173,872,31,theme()['header'])
+for x,w,label in [(52,172,'후보·역할'),(237,343,'이 데이터에서 기대하는 역할'),(592,315,'비교 범위·조건')]:
+    text(label,x,179,w,13,'#FFFFFF',bold=True,leading=18)
+model_rows=[
+    ('Ridge','우선 후보','소표본·정책 변수 중복에 대응\n계수 크기를 제약해 추세를 안정화',
+     'ΔQ / 정책 / 결합 모두 비교\n이후 후보의 성능 기준으로 사용'),
+    ('Elastic Net','보조 후보','일부 입력의 계수를 0으로 축소\nRidge 대비 변수 선택의 이득 검증',
+     '정책 3개·결합 4개에서 비교\n폴드별 선택 변수의 일관성도 확인'),
+    ('얕은 회귀트리','조건부 후보','전류 조건과 ΔQ의 구간별 관계를\n단순 분기·상호작용으로 표현',
+     '선형 모델의 검증 잔차에 곡률 반복 시\n깊이 2·리프 최소 5셀로 비교'),
+]
+for i,(name,role,why,how) in enumerate(model_rows):
+    y=204+i*73
+    if i%2==0:rect(44,y,872,73,theme()['tint'])
+    text(name,53,y+10,172,19,accent(),bold=True,leading=26)
+    text(role,54,y+42,171,12,MUTED,leading=17)
+    text(why,237,y+15,341,14,leading=22)
+    text(how,592,y+15,315,13,leading=22)
+    line(44,y+73,872,theme()['border'],.6)
+text('기준선: 학습 수명의 1/y 가중 중앙값 · 비교: 같은 정책 그룹 4-fold CV, 원 단위 MAPE',48,437,864,11,MUTED,leading=17)
+text('채택 기준  |  기준 후보보다 MAPE 1%p 이상 감소 + 4개 중 3개 폴드 개선',48,468,864,16,accent(),bold=True,leading=23)
 
 question_titles=[r['title'][:3] for r in INDEX if r['title'].startswith(('Q1.','Q2.','Q3.','Q4.','Q5.'))]
 assert question_titles==['Q1.','Q2.','Q3.','Q4.','Q5.'],question_titles
