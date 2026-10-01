@@ -1,0 +1,14 @@
+.venv/
+__pycache__/
+.ipynb_checkpoints/
+.DS_Store
+
+# Large source files and private working references stay on this computer.
+data/raw/
+data/processed/
+references/
+notebooks/30-ESSHealth-scratch.ipynb
+*_전사본_*.txt
+
+# Temporary report renders.
+deliverables/rendered/

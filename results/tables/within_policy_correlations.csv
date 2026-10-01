@@ -1,0 +1,16 @@
+batch,feature,n_cells,n_policies,within_policy_rho
+batch1,log10_dq_var,46,23,-0.1536326634228231
+batch1,dq_mean,46,23,-0.10108548187475197
+batch1,early_charge_mean,46,23,-0.060749969277993095
+batch1,early_tavg_mean,46,23,-0.15449611476281494
+batch1,qd_100,46,23,0.5426791671848337
+batch2_notion,log10_dq_var,39,12,-0.33221954932286824
+batch2_notion,dq_mean,39,12,0.1686917918841507
+batch2_notion,early_charge_mean,39,12,-0.13791009636627446
+batch2_notion,early_tavg_mean,39,12,0.18317133944683595
+batch2_notion,qd_100,39,12,-0.07624544975316057
+batch3,log10_dq_var,44,8,-0.4748414376321353
+batch3,dq_mean,44,8,0.4091613812544045
+batch3,early_charge_mean,44,8,0.0001409443269908386
+batch3,early_tavg_mean,44,8,0.28611698379140243
+batch3,qd_100,44,8,0.14362226920366455

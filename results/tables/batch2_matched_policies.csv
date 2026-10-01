@@ -1,0 +1,13 @@
+base_policy,protocol_family,n,mean_life,median_life
+3.6C(30%)-6C,standard,2,421.0,421.0
+3.6C(9%)-5C,standard,2,394.5,394.5
+4.65C(44%)-5C,standard,2,482.5,482.5
+4.65C(69%)-6C,standard,2,452.0,452.0
+4.8C(80%)-4.8C,newstructure,3,871.6666666666666,809.0
+4.8C(80%)-4.8C,standard,5,483.6,492.0
+5.2C(50%)-4.25C,standard,5,454.0,449.0
+5.2C(58%)-4C,newstructure,3,961.6666666666666,904.0
+5.2C(58%)-4C,standard,4,477.75,483.0
+5.6C(26%)-4.5C,newstructure,3,991.3333333333334,997.0
+5.6C(26%)-4.5C,standard,6,448.5,446.0
+6C(60%)-3C,standard,2,400.0,400.0

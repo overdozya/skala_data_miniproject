@@ -1,0 +1,13 @@
+batch,endpoint_group,policy_centered,n_policies,rho,lo,hi
+batch1,all_recorded_labels,False,23,-0.8712,-0.9442,-0.6815
+batch1,all_recorded_labels,True,23,-0.1536,-0.4957,0.2205
+batch1,near_eol_only,False,20,-0.8262,-0.9228,-0.6029
+batch1,near_eol_only,True,20,-0.116,-0.5535,0.3764
+batch2_notion,all_recorded_labels,False,12,-0.709,-0.8957,-0.3107
+batch2_notion,all_recorded_labels,True,12,-0.3322,-0.5719,-0.1043
+batch2_notion,near_eol_only,False,12,-0.709,-0.8957,-0.3107
+batch2_notion,near_eol_only,True,12,-0.3322,-0.5719,-0.1043
+batch3,all_recorded_labels,False,8,-0.7972,-0.9103,-0.4836
+batch3,all_recorded_labels,True,8,-0.4748,-0.8043,-0.0657
+batch3,near_eol_only,False,8,-0.7972,-0.9103,-0.4836
+batch3,near_eol_only,True,8,-0.4748,-0.8043,-0.0657

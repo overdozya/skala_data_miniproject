@@ -1,0 +1,4 @@
+,n_cells,n_labeled,n_unlabeled,n_near_eol_labeled,n_distant_endpoint_labeled,n_observed_below_088,n_label_matches_observed_cross,n_label_equals_record_length_plus1,n_policies,n_labeled_policies,life_min,life_q1,life_median,life_q3,life_max,life_mean,n_short_500,n_long_1000,n_class_550_positive,n_100_cycles,qd_nonfinite,ir_nonfinite,n_dq,voltage_grid_points,voltage_grid_min,voltage_grid_max
+batch1,46.0,46.0,0.0,36.0,10.0,0.0,0.0,46.0,23.0,23.0,534.0,703.25,858.5,914.25,1227.0,844.7173913043479,0.0,10.0,45.0,46.0,0.0,0.0,46.0,1000.0,2.0,3.5
+batch2_notion,47.0,39.0,8.0,39.0,0.0,39.0,39.0,0.0,20.0,12.0,392.0,439.5,472.0,508.5,1186.0,565.7435897435897,28.0,3.0,9.0,47.0,0.0,0.0,47.0,1000.0,2.0,3.5
+batch3,46.0,44.0,2.0,44.0,0.0,0.0,0.0,44.0,8.0,8.0,541.0,828.0,1005.5,1155.25,1935.0,1059.659090909091,0.0,23.0,43.0,46.0,0.0,0.0,46.0,1000.0,2.0,3.5
