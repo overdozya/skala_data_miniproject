@@ -12,3 +12,5 @@ notebooks/30-ESSHealth-scratch.ipynb
 
 # Temporary report renders.
 deliverables/rendered/
+tmp/
+tmp_revision_figures.jpg

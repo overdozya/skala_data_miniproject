@@ -1,307 +1,340 @@
-"""Build the DAY 1 16:9 evidence-first PDF. No predictive model is fitted."""
+"""Landscape DAY 1 report: evidence, counterexample, then model decision.
+
+This file formats descriptive EDA only; it never fits a predictive model.
+"""
+
 from __future__ import annotations
 
-from pathlib import Path
 import json
+from pathlib import Path
 
 import pandas as pd
 from PIL import Image as PILImage
-from reportlab.pdfbase import pdfmetrics
-from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.lib import colors
 from reportlab.lib.styles import ParagraphStyle
-from reportlab.platypus import Paragraph
-from reportlab.pdfgen import canvas
 from reportlab.lib.utils import ImageReader
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
+from reportlab.pdfgen import canvas
+from reportlab.platypus import Paragraph
 
 ROOT = Path(__file__).resolve().parents[1]
 FIG = ROOT / "results" / "figures"
+TAB = ROOT / "results" / "tables"
 OUT = ROOT / "deliverables" / "DS-MINI-Design-울산캠퍼스_2반-안동선.pdf"
-DATA = ROOT / "data" / "processed" / "cells.csv"
-SUMMARY = ROOT / "results" / "tables" / "eda_summary.json"
 FONT = Path("/System/Library/AssetsV2/com_apple_MobileAsset_Font7/"
             "bad9b4bf17cf1669dde54184ba4431c22dcad27b.asset/AssetData/NanumGothic.ttc")
 pdfmetrics.registerFont(TTFont("Nanum", str(FONT), subfontIndex=0))
 pdfmetrics.registerFont(TTFont("NanumBold", str(FONT), subfontIndex=1))
 pdfmetrics.registerFontFamily("Nanum", normal="Nanum", bold="NanumBold")
 
-W, H = 960, 540
-NAVY = colors.HexColor("#15334D")
-DEEP = colors.HexColor("#102A41")
-TEAL = colors.HexColor("#087377")
-ORANGE = colors.HexColor("#BF681D")
-RED = colors.HexColor("#AA3E49")
-INK = colors.HexColor("#253647")
-MUTED = colors.HexColor("#60717F")
-PALE = colors.HexColor("#F2F6F8")
-LINE = colors.HexColor("#D9E2E8")
+W, H, N = 960, 540, 12
+NAVY = colors.HexColor("#173047")
+DEEP = colors.HexColor("#102738")
+INK = colors.HexColor("#283B49")
+MUTED = colors.HexColor("#5F7380")
+TEAL = colors.HexColor("#15796F")
+ORANGE = colors.HexColor("#C17A29")
+RED = colors.HexColor("#AC4753")
+BLUE = colors.HexColor("#286898")
+BG = colors.HexColor("#FDFEFE")
+PALE = colors.HexColor("#F3F7F8")
+LINE = colors.HexColor("#D9E3E7")
 WHITE = colors.white
-BG = colors.HexColor("#FBFCFD")
 
 STYLES = {
-    "title": ParagraphStyle("title", fontName="NanumBold", fontSize=25,
-                            leading=36, textColor=NAVY, wordWrap="CJK"),
-    "subtitle": ParagraphStyle("subtitle", fontName="Nanum", fontSize=11.5,
-                               leading=17, textColor=MUTED, wordWrap="CJK"),
-    "coversub": ParagraphStyle("coversub", fontName="Nanum", fontSize=12,
-                               leading=19, textColor=colors.HexColor("#C3D5DF"),
-                               wordWrap="CJK"),
-    "covercaption": ParagraphStyle("covercaption", fontName="Nanum", fontSize=11,
-                                   leading=17, textColor=WHITE, wordWrap="CJK"),
-    "body": ParagraphStyle("body", fontName="Nanum", fontSize=12,
-                           leading=18.5, textColor=INK, wordWrap="CJK"),
-    "bodybold": ParagraphStyle("bodybold", fontName="NanumBold", fontSize=12.5,
-                               leading=19.5, textColor=NAVY, wordWrap="CJK"),
-    "small": ParagraphStyle("small", fontName="Nanum", fontSize=10,
+    "title": ParagraphStyle("title", fontName="NanumBold", fontSize=24,
+                            leading=33, textColor=NAVY, wordWrap="CJK"),
+    "subtitle": ParagraphStyle("subtitle", fontName="Nanum", fontSize=10.7,
+                               leading=15, textColor=MUTED, wordWrap="CJK"),
+    "body": ParagraphStyle("body", fontName="Nanum", fontSize=11.4,
+                           leading=17.2, textColor=INK, wordWrap="CJK"),
+    "small": ParagraphStyle("small", fontName="Nanum", fontSize=10.1,
                             leading=15, textColor=INK, wordWrap="CJK"),
     "tiny": ParagraphStyle("tiny", fontName="Nanum", fontSize=9,
-                           leading=13, textColor=MUTED, wordWrap="CJK"),
-    "cardhead": ParagraphStyle("cardhead", fontName="NanumBold", fontSize=11,
-                               leading=16, textColor=TEAL, wordWrap="CJK"),
-    "cardbody": ParagraphStyle("cardbody", fontName="Nanum", fontSize=11.3,
-                               leading=17, textColor=INK, wordWrap="CJK"),
-    "table": ParagraphStyle("table", fontName="Nanum", fontSize=10.5,
-                            leading=15.5, textColor=INK, wordWrap="CJK"),
-    "tablehead": ParagraphStyle("tablehead", fontName="NanumBold", fontSize=10.5,
-                                leading=15.5, textColor=WHITE, wordWrap="CJK"),
+                           leading=12.6, textColor=MUTED, wordWrap="CJK"),
+    "bar": ParagraphStyle("bar", fontName="Nanum", fontSize=11.3,
+                          leading=17, textColor=INK, wordWrap="CJK"),
+    "table": ParagraphStyle("table", fontName="Nanum", fontSize=10.4,
+                            leading=15.2, textColor=INK, wordWrap="CJK"),
+    "tablehead": ParagraphStyle("tablehead", fontName="NanumBold", fontSize=10.2,
+                                leading=15, textColor=WHITE, wordWrap="CJK"),
+    "cover": ParagraphStyle("cover", fontName="NanumBold", fontSize=30,
+                            leading=43, textColor=WHITE, wordWrap="CJK"),
+    "coverbody": ParagraphStyle("coverbody", fontName="Nanum", fontSize=13,
+                                leading=19, textColor=WHITE, wordWrap="CJK"),
 }
 
 
-def para(c, value, x, top, width, kind="body", limit=None):
-    value = value.replace("−", "-").replace("–", "-").replace("—", "-")
-    node = Paragraph(value, STYLES[kind])
+def para(c, value, x, top, width, style="body", limit=None):
+    node = Paragraph(value, STYLES[style])
     _, height = node.wrap(width, 1000)
     if limit is not None and height > limit + 1:
-        raise ValueError(f"Text exceeds its box ({height:.1f}>{limit}): {value[:70]}")
+        raise ValueError(f"Overflow: {style} {height:.1f}>{limit}: {value[:100]}")
     node.drawOn(c, x, top - height)
     return height
 
 
-def label(c, value, x, y, size=10, color=MUTED, bold=True):
+def label(c, value, x, y, size=10, color=INK, bold=False):
     c.setFont("NanumBold" if bold else "Nanum", size)
     c.setFillColor(color)
     c.drawString(x, y, value)
 
 
-def card(c, x, y, w, h, eyebrow, body, color=TEAL, fill=WHITE, body_kind="cardbody"):
-    c.setFillColor(fill)
-    c.setStrokeColor(LINE)
-    c.roundRect(x, y, w, h, 10, fill=1, stroke=1)
-    c.setFillColor(color)
-    c.roundRect(x, y + h - 8, w, 8, 4, fill=1, stroke=0)
-    para(c, eyebrow, x + 15, y + h - 23, w - 30, "cardhead", 20)
-    para(c, body, x + 15, y + h - 45, w - 30, body_kind, h - 55)
-
-
-def chart(c, filename, x, y, w, h):
+def image(c, filename, x, y, w, h):
     path = FIG / filename
     with PILImage.open(path) as im:
         iw, ih = im.size
-    ratio = min(w / iw, h / ih)
-    rw, rh = iw * ratio, ih * ratio
-    c.drawImage(ImageReader(str(path)), x + (w - rw) / 2, y + (h - rh) / 2,
+    factor = min(w / iw, h / ih)
+    rw, rh = iw * factor, ih * factor
+    c.drawImage(ImageReader(str(path)), x+(w-rw)/2, y+(h-rh)/2,
                 width=rw, height=rh, mask="auto")
 
 
-def slide(c, n, section, title, subtitle=None):
+def frame(c, number, section, title, subtitle=None):
     c.setFillColor(BG)
     c.rect(0, 0, W, H, fill=1, stroke=0)
     c.setFillColor(TEAL)
-    c.rect(0, H - 10, W, 10, fill=1, stroke=0)
-    label(c, f"DAY 1  /  {section}", 40, 505, 10, TEAL)
-    para(c, title, 40, 494, 880, "title", 70)
+    c.rect(0, H-8, W, 8, fill=1, stroke=0)
+    label(c, f"DAY 1  /  {section}", 40, 506, 10, TEAL, True)
+    para(c, title, 40, 496, 880, "title", 68)
     if subtitle:
-        para(c, subtitle, 40, 450, 880, "subtitle", 34)
+        para(c, subtitle, 40, 452, 880, "subtitle", 29)
     c.setStrokeColor(LINE)
-    c.line(40, 40, 920, 40)
-    label(c, "울산캠퍼스 2반  ·  안동선", 40, 22, 9, MUTED, False)
-    c.setFont("NanumBold", 9)
+    c.line(40, 39, 920, 39)
+    label(c, "DS MINI PROJECT  |  울산캠퍼스 2반 · 안동선", 40, 21, 8.8, MUTED)
     c.setFillColor(MUTED)
-    c.drawRightString(920, 22, f"{n:02d} / 11")
+    c.setFont("NanumBold", 9)
+    c.drawRightString(920, 21, f"{number:02d} / {N}")
 
 
-def draw_table(c, x, top, widths, headers, rows, row_h=48, header_h=43):
-    total = sum(widths)
+def band(c, y, h, heading, body, tint=PALE, accent=TEAL, heading_w=148):
+    c.setFillColor(tint)
+    c.roundRect(40, y, 880, h, 7, fill=1, stroke=0)
+    c.setFillColor(accent)
+    c.rect(40, y, 5, h, fill=1, stroke=0)
+    para(c, heading, 57, y+h-12, heading_w-18, "small", h-17)
+    para(c, body, 40+heading_w, y+h-11, 864-heading_w, "bar", h-16)
+
+
+def note(c, value):
+    para(c, value, 40, 62, 880, "tiny", 17)
+
+
+def table(c, x, top, widths, headers, rows, row_h, header_h=38):
+    full = sum(widths)
     c.setFillColor(NAVY)
-    c.roundRect(x, top - header_h, total, header_h, 8, fill=1, stroke=0)
-    cx = x
-    for width, text in zip(widths, headers):
-        para(c, text, cx + 10, top - 10, width - 20, "tablehead", header_h - 15)
-        cx += width
-    y = top - header_h
-    for idx, row in enumerate(rows):
-        c.setFillColor(WHITE if idx % 2 == 0 else PALE)
-        c.rect(x, y - row_h, total, row_h, fill=1, stroke=0)
-        cx = x
-        for width, text in zip(widths, row):
-            para(c, str(text), cx + 10, y - 9, width - 20, "table", row_h - 15)
-            cx += width
+    c.roundRect(x, top-header_h, full, header_h, 6, fill=1, stroke=0)
+    xx = x
+    for w, item in zip(widths, headers):
+        para(c, item, xx+10, top-9, w-20, "tablehead", header_h-12)
+        xx += w
+    y = top-header_h
+    for i, row in enumerate(rows):
+        c.setFillColor(WHITE if i%2 == 0 else PALE)
+        c.rect(x, y-row_h, full, row_h, fill=1, stroke=0)
+        xx = x
+        for w, item in zip(widths, row):
+            para(c, str(item), xx+10, y-8, w-20, "table", row_h-11)
+            xx += w
         c.setStrokeColor(LINE)
-        c.line(x, y - row_h, x + total, y - row_h)
+        c.line(x, y-row_h, x+full, y-row_h)
         y -= row_h
     return y
 
 
-def source_note(c, text):
-    para(c, text, 42, 59, 875, "tiny", 18)
+def section_text(c, x, top, width, eyebrow, body, color=TEAL, limit=85):
+    label(c, eyebrow, x, top, 11.2, color, True)
+    para(c, body, x, top-9, width, "body", limit)
 
 
 def build():
-    if not DATA.exists() or not SUMMARY.exists():
-        raise FileNotFoundError("Run extract.py and eda.py before building the report")
-    cells = pd.read_csv(DATA)
-    stats = json.loads(SUMMARY.read_text(encoding="utf-8"))["batches"]
-    assert [stats[k]["n_labeled"] for k in ("batch1", "batch2_notion", "batch3")] == [46, 39, 44]
-    assert int(((cells.batch == "batch2_notion") & (cells.cycle_life < 534)).sum()) == 30
+    cells = pd.read_csv(ROOT / "data" / "processed" / "cells.csv")
+    revised = pd.read_csv(ROOT / "data" / "processed" / "revised_cell_metrics.csv")
+    info = json.loads((TAB / "eda_summary.json").read_text(encoding="utf-8"))
+    required = [f"r0{i}_" for i in range(1, 8)]
+    assert all(any(p.name.startswith(prefix) for p in FIG.glob("r*.png")) for prefix in required)
+    assert [info["batches"][x]["n_labeled"] for x in
+            ("batch1", "batch2_notion", "batch3")] == [46, 39, 44]
+    assert len(revised) == 139 and len(cells) == 139
     OUT.parent.mkdir(parents=True, exist_ok=True)
-    c = canvas.Canvas(str(OUT), pagesize=(W, H), pageCompression=1)
-    c.setTitle("DS Mini Project DAY 1 - EDA에서 모델 전략까지")
+    c = canvas.Canvas(str(OUT), pagesize=(W,H), pageCompression=1)
+    c.setTitle("DS Mini Project DAY 1 - 데이터에서 모델 전략까지")
     c.setAuthor("안동선")
 
-    # 1 — editorial cover with the decision, rather than a decorative title page.
-    c.setFillColor(DEEP)
-    c.rect(0, 0, W, H, fill=1, stroke=0)
-    c.setFillColor(TEAL)
-    c.rect(0, H - 12, W, 12, fill=1, stroke=0)
-    label(c, "DS MINI PROJECT  /  DAY 1", 48, 492, 12, colors.HexColor("#8DDADE"))
-    cover = ParagraphStyle("cover", fontName="NanumBold", fontSize=33, leading=46,
-                           textColor=WHITE, wordWrap="CJK")
-    node = Paragraph("초기 100사이클의 신호는 보인다.<br/>하지만 테스트 배치의 수명은 다르다.", cover)
-    _, hh = node.wrap(840, 1000)
-    node.drawOn(c, 48, 465 - hh)
-    para(c, "ESS 교체 계획 관점  /  배치 1·2·3 원본 재검증 → 다섯 질문의 EDA → 회귀·검증 설계",
-         49, 346, 820, "coversub", 35)
-    for x, number, caption in [(48, "30/39", "Batch 2: 학습 수명 최솟값 534 미만"),
-                               (355, "-0.87 / -0.71 / -0.80", "ΔQ 분산과 수명 상관, Batch 1 / 2 / 3"),
-                               (663, "0 / 39 / 0", "0.88 Ah 실제 교차 확인, Batch 1 / 2 / 3")]:
-        c.setFillColor(colors.HexColor("#1E4056"))
-        c.roundRect(x, 115, 274 if x != 355 else 285, 142, 10, fill=1, stroke=0)
-        label(c, number, x + 16, 200, 23, WHITE)
-        para(c, caption, x + 16, 179, 245, "covercaption", 55)
-    label(c, "울산캠퍼스 2반  ·  안동선", 48, 54, 11, WHITE)
-    label(c, "EDA 50  /  해석→전략 30  /  모델 전략 20", 578, 54, 10, colors.HexColor("#8DDADE"))
-    c.showPage()
-
-    # 2 — the denominator and label semantics are the first analytical result.
-    slide(c, 2, "데이터 신뢰성", "같은 cycle_life라도 배치마다 관측 방식이 다르다",
-          "모든 수치의 분모를 먼저 고정했다. Batch 2의 특수 프로토콜 8셀과 Batch 3의 결측 2셀은 수명 상관에서 제외한다.")
-    draw_table(c, 40, 404, [185, 120, 120, 120],
-               ["점검", "Batch 1", "Batch 2", "Batch 3"],
-               [["전체 / 숫자 레이블", "46 / 46", "47 / 39", "46 / 44"],
-                ["실제 0.88 Ah 첫 교차", "0 / 46", "39 / 39", "0 / 44"],
-                ["레이블 = 기록 길이 + 1", "46 / 46", "0 / 39", "44 / 44"],
-                ["마지막 QD ≤0.885 Ah", "36 / 46", "39 / 39", "44 / 44"]],
-               row_h=54)
-    card(c, 610, 240, 310, 164, "해석  /  목표값 신뢰성",
-         "Batch 1의 10셀은 0.913-1.043 Ah에서 기록이 끝나 잠재적 우측 검열이다. Batch 2 라벨 39개는 실제 첫 교차와 일치한다.", RED)
-    card(c, 610, 75, 310, 148, "모델링 결정",
-         "숫자 레이블 전체와 Batch 1 종료 근접 36셀을 나눠 민감도를 본다. 이후 수명곡선·knee는 EDA 전용이다.", TEAL)
-    source_note(c, "0.885 Ah는 원저자 코드의 근접 점검선. 실제 EOL 판정선은 0.88 Ah.")
-    c.showPage()
-
-    # 3 — distribution and feasibility of the proposed task.
-    slide(c, 3, "Q1  /  수명 분포", "Batch 2의 짧은 수명은 단순한 몇 개의 이상치가 아니다")
-    chart(c, "01_life_distribution.png", 40, 118, 595, 312)
-    card(c, 651, 319, 269, 112, "관찰", "수명 중앙값: Batch 1 858.5 / Batch 2 472 / Batch 3 1005.5사이클.", ORANGE)
-    card(c, 651, 197, 269, 112, "해석", "Batch 2에서 28/39셀이 500 미만. Batch 1은 0/46이다.", RED)
-    card(c, 651, 75, 269, 112, "모델 결정", "550 기준 분류는 Batch 1의 단수명 1셀로 학습이 어렵다. 수명 회귀를 선택한다.", TEAL)
-    source_note(c, "Batch 1 수명 최솟값 534보다 짧은 Batch 2 셀은 30/39. 외부 평가의 핵심 외삽 구간이다.")
-    c.showPage()
-
-    # 4 — matched policy family; show the reason the short-life cluster exists.
-    slide(c, 4, "Q1 + Q4  /  짧은 셀의 정체", "같은 기본 C-rate에서도 Batch 2 수명이 두 집단으로 갈린다")
-    chart(c, "08_batch2_matched_policies.png", 40, 135, 602, 300)
-    card(c, 658, 315, 262, 121, "관찰", "일반형 30셀 중앙값 451, newstructure 9셀 중앙값 904사이클.", ORANGE)
-    card(c, 658, 184, 262, 121, "해석", "같은 기본 정책 3쌍에서 평균 차이가 +388 / +484 / +543사이클이다.", RED)
-    card(c, 658, 53, 262, 121, "모델 결정", "구조 변형의 인과효과로 단정하지 않는다. Batch 1에 없는 조건이라 테스트 오류를 따로 보고한다.", TEAL)
-    para(c, "점 = 셀, 굵은 가로선 = 해당 집단 평균. 각 newstructure 정책은 3셀뿐이다.",
-         45, 103, 575, "tiny", 25)
-    c.showPage()
-
-    # 5 — degradation and knee, with an explicit information boundary.
-    slide(c, 5, "Q2  /  용량 열화", "초기 용량은 비슷해도 급격한 하강의 시작은 다르다")
-    chart(c, "09_degradation_landscape.png", 35, 177, 890, 270)
-    card(c, 40, 61, 278, 103, "관찰", "탐색적 knee 중앙 위치는 수명의 76% / 79% / 81%.", ORANGE)
-    card(c, 331, 61, 278, 103, "해석", "10사이클 QD와 수명의 상관은 0.10 / 0.08 / 0.13으로 약하다.", RED)
-    card(c, 622, 61, 298, 103, "모델 결정", "미래의 knee는 입력 금지. 초기 10→100사이클 변화만 후보로 둔다.", TEAL)
-    source_note(c, "7사이클 이동 중앙값과 2구간 선형 근사는 설명용 휴리스틱이며 물리적 knee 확정값은 아니다.")
-    c.showPage()
-
-    # 6 — Delta Q curve shape.
-    slide(c, 6, "Q3  /  초기 ΔQ(V)", "짧은 수명 셀은 2.8-3.1 V에서 더 큰 초기 곡선 변화를 보인다")
-    chart(c, "10_delta_q_landscape.png", 35, 176, 890, 265)
-    card(c, 40, 60, 278, 103, "계산", "물리적 100번 - 10번 사이클. Qdlin 배열 위치는 99 - 9다.", ORANGE)
-    card(c, 331, 60, 278, 103, "관찰", "세 배치 모두 짧은 1/3의 ΔQ가 더 음수. 음영은 그룹 IQR.", RED)
-    card(c, 622, 60, 298, 103, "피처화", "곡선 1,000점을 그대로 넣기보다 log10 분산 1개부터 검증한다.", TEAL)
-    source_note(c, "전압 격자: 모든 셀 3.5→2.0 V, 1,000점. 수명 그룹은 설명용으로만 사용.")
-    c.showPage()
-
-    # 7 — strong association, but weaker within policy.
-    slide(c, 7, "Q3  /  신호의 독립성", "ΔQ 분산의 전체 상관은 강하지만 정책 내부에서는 약해진다")
-    chart(c, "04_delta_q_life.png", 40, 102, 530, 344)
-    draw_table(c, 588, 425, [138, 68, 68, 68],
-               ["Spearman ρ", "B1", "B2", "B3"],
-               [["전체", "-0.87", "-0.71", "-0.80"],
-                ["정책 평균 제거", "-0.15", "-0.33", "-0.47"]],
-               row_h=47, header_h=39)
-    card(c, 588, 152, 332, 122, "해석", "정책 간 차이가 ΔQ의 전체 신호에 섞인다. B1 정책 단위 부트스트랩의 내부 상관 95% 구간은 -0.50~+0.22.", RED)
-    card(c, 588, 53, 332, 90, "모델 결정", "ΔQ만 / 정책만 / 결합 제거 실험과 정책 그룹 홀드아웃을 계획한다.", TEAL)
-    source_note(c, "Batch 1의 종료 미확인 10셀을 제외해도 전체 ΔQ 상관은 -0.83 (n=36).")
-    c.showPage()
-
-    # 8 — C-rate effect does not transport across batches.
-    slide(c, 8, "Q4  /  충전 정책", "첫 단계 C-rate 하나로 수명 차이를 설명할 수 없다")
-    chart(c, "05_policy_vs_life.png", 35, 183, 890, 248)
-    card(c, 40, 62, 278, 108, "관찰", "C-rate-수명 상관: B1 -0.48 / B2 +0.06 / B3 -0.23.", ORANGE)
-    card(c, 331, 62, 278, 108, "해석", "B1 종료 미확인 10셀 제외 시 -0.24. 구조·정책·레이블 상태가 얽힌다.", RED)
-    card(c, 622, 62, 298, 108, "모델 결정", "1·2단계 C-rate와 전환 SOC를 수치화. 정책별 평균에 과신하지 않는다.", TEAL)
-    source_note(c, "완전 동일 정책의 배치 간 중복: B1-B2 2개, B1-B3 0개. B1은 23정책·46셀.")
-    c.showPage()
-
-    # 9 — correlations, stability and redundancy.
-    slide(c, 9, "Q5  /  피처 선택", "강한 상관보다 배치 안정성과 중복을 함께 본다")
-    chart(c, "06_feature_correlations.png", 40, 73, 498, 374)
-    card(c, 557, 333, 363, 109, "유지 후보", "ΔQ 분산: -0.87 / -0.71 / -0.80. QD 10 단독 상관은 0.10 / 0.08 / 0.13.", TEAL)
-    card(c, 557, 214, 363, 109, "불안정 후보", "QD 변화: +0.61 / -0.05 / +0.03. 평균 충전 시간: +0.61 / -0.39 / +0.19.", RED)
-    card(c, 557, 75, 363, 129, "중복 제어", "B1 ΔQ 평균↔분산 ρ=-0.97, 평균↔최솟값 +0.99. Tavg↔Tmax +0.95. 작은 학습 셀에 모두 투입하지 않는다.", ORANGE)
-    source_note(c, "상관은 셀 단위 Spearman. 피처 선택은 DAY 2 학습 폴드 안에서만 수행한다.")
-    c.showPage()
-
-    # 10 — action-oriented model plan, with selection criteria.
-    slide(c, 10, "모델 설계", "초기 100사이클 수명 회귀를 작고 검증 가능한 후보부터 비교한다")
-    card(c, 40, 312, 280, 130, "01  /  기준선", "Batch 1 학습 셀의 수명 중앙값. 모든 후보는 이 기준보다 낮은 검증 MAPE를 보여야 한다.", ORANGE)
-    card(c, 340, 312, 280, 130, "02  /  선형·강건 회귀", "표준화 소수 피처 + Ridge/Elastic Net 또는 Huber. ΔQ 중복과 작은 n=46에 대응.", TEAL)
-    card(c, 640, 312, 280, 130, "03  /  제한적 비선형", "얕은 트리 회귀. ΔQ×정책 상호작용이 내부 검증에서 유효할 때만 선택.", RED)
-    label(c, "입력 피처 후보", 42, 279, 12, NAVY)
-    draw_table(c, 40, 264, [202, 326, 352],
-               ["우선순위", "후보", "EDA에서 나온 이유"],
-               [["주 후보", "log10 var(ΔQ(V))", "세 배치에서 같은 방향; 요약값 중복 축소"],
-                ["보조", "1·2단계 C-rate, 전환 SOC", "ΔQ 전체 상관에 정책 차이가 섞임"],
-                ["민감도", "QD/IR 변화, 온도·충전 시간", "배치별 상관 불안정; 제거 실험으로 판단"]],
-               row_h=43, header_h=37)
-    source_note(c, "newstructure는 Batch 1에 없으므로 학습된 효과로 사용하지 않는다. 로그 목표값은 Batch 1 내부 CV로만 선택한다.")
-    c.showPage()
-
-    # 11 — precommitted validation and source caveat.
-    slide(c, 11, "DAY 2 실행 계획", "성능 숫자보다 먼저 분할·누수 차단·오류 진단을 고정한다")
-    for x, num, head, text in [
-        (40, "1", "Batch 1 분리", "정책 그룹 단위 20% 홀드아웃. 시드 20261001 고정."),
-        (340, "2", "학습 내부 CV", "남은 정책에 4-fold GroupKFold. 전처리·선택은 폴드 내부 fit."),
-        (640, "3", "외부 평가", "선택 후 Batch 2의 라벨 39셀에 단 한 번 최종 Test.")
+    # 1. The cover states the practical question and the actual decisions.
+    c.setFillColor(DEEP); c.rect(0,0,W,H,fill=1,stroke=0)
+    c.setFillColor(TEAL); c.rect(0,H-10,W,10,fill=1,stroke=0)
+    label(c, "DS MINI PROJECT  /  DAY 1", 47, 495, 12, colors.HexColor("#92DDD5"), True)
+    para(c, "100사이클만 보고 수명을 예측할 때,<br/>어떤 신호를 믿을 수 있을까?",
+         47, 474, 866, "cover", 100)
+    para(c, "Batch 1·2·3 원본 EDA  →  반례 확인  →  한 가지 주 모델과 검증 조건",
+         49, 357, 835, "coverbody", 33)
+    for y, num, head, body in [
+        (274, "01", "데이터", "Batch 2 짧은 수명 30셀은 일반형에 집중된다."),
+        (202, "02", "해석", "ΔQ의 강한 전체 상관은 정책을 통제하면 약해진다."),
+        (130, "03", "결정", "주 모델은 소수 피처 Ridge; 정책 단위 검증으로 채택한다."),
     ]:
-        c.setFillColor(TEAL)
-        c.circle(x + 17, 395, 17, fill=1, stroke=0)
-        c.setFillColor(WHITE)
-        c.setFont("NanumBold", 16)
-        c.drawCentredString(x + 17, 389, num)
-        card(c, x, 254, 280, 115, head, text, TEAL)
-    card(c, 40, 98, 425, 140, "보고할 수치", "Train(B1 CV) / Valid(B1 Hold-out) / Test(B2) MAPE 및 간극. MAE, 실제 <534 구간의 오차, 과대 예측률, B2 일반형 30셀 vs newstructure 9셀을 별도 진단.", ORANGE)
-    card(c, 485, 98, 435, 140, "해석의 한계", "B1·B3은 실제 EOL 첫 교차가 관측되지 않았다. 과제 B2(2018-02-20)와 원저자 코드 B2(2017-06-30)가 달라 논문 9.1%는 참고 목표다. 실험실 소형 셀을 ESS 현장에 바로 적용하지 않는다.", RED)
-    label(c, "출처: 노션 과제 · Severson et al. (2019) · 원저자 LoadData.m · Toyota Research Institute 원자료", 42, 74, 9, MUTED, False)
-    c.linkURL("https://actually-war-1ea.notion.site/DS-Mini-Project-32d7f4c8669380338a27f90c471c1fcb", (42, 70, 165, 85))
-    c.linkURL("https://www.nature.com/articles/s41560-019-0356-8", (170, 70, 345, 85))
-    c.linkURL("https://github.com/rdbraatz/data-driven-prediction-of-battery-cycle-life-before-capacity-degradation", (350, 70, 515, 85))
-    c.linkURL("https://data.matr.io/1/projects/5c48dd2bc625d700019f3204", (520, 70, 920, 85))
+        c.setStrokeColor(colors.HexColor("#335266")); c.line(47,y-15,912,y-15)
+        label(c,num,48,y+19,18,colors.HexColor("#92DDD5"),True)
+        label(c,head,115,y+20,13,WHITE,True)
+        para(c,body,208,y+30,690,"coverbody",43)
+    label(c,"울산캠퍼스 2반  ·  안동선",48,57,11,WHITE)
+    label(c,"EDA 50  /  해석→전략 30  /  모델 전략 20",578,57,10,colors.HexColor("#92DDD5"))
+    c.showPage()
+
+    # 2. Prediction contract and label audit.
+    frame(c,2,"예측 대상", "수명 레이블이 무엇을 뜻하는지부터 확인했다",
+          "입력은 초기 100사이클까지만. 목표는 기록된 전체 cycle_life지만, 세 배치의 종료 관측 방식이 다르다.")
+    table(c,40,413,[215,112,112,112],
+          ["원본 검증", "Batch 1", "Batch 2", "Batch 3"],
+          [["셀 / 숫자 레이블", "46 / 46", "47 / 39", "46 / 44"],
+           ["0.88 Ah 첫 교차 확인", "0 / 46", "39 / 39", "0 / 44"],
+           ["레이블 = 기록 길이 + 1", "46 / 46", "0 / 39", "44 / 44"],
+           ["종료 근접(≤0.885 Ah)", "36 / 46", "39 / 39", "44 / 44"]],46)
+    label(c,"Batch 1의 10셀",624,379,18,RED,True)
+    para(c,"마지막 QD가 0.913~1.043 Ah. 실제 EOL 전 기록이 끝났을 가능성이 있어 긴 수명 레이블을 그대로 믿기 어렵다.",
+         624,364,292,"body",88)
+    c.setStrokeColor(LINE);c.line(624,260,917,260)
+    label(c,"모델에서의 처리",624,236,13,TEAL,True)
+    para(c,"46셀 전체 결과를 기준으로 보되, 종료에 근접한 36셀만으로 같은 분석을 다시 해 민감도를 보고한다.",
+         624,223,292,"body",74)
+    band(c,72,60,"판단", "Batch 1·3의 숫자 수명은 첫 0.88 Ah 교차가 아니다. Batch 2의 39개는 교차와 일치한다. 성능 차이에는 레이블 정의 차이가 섞일 수 있다.",
+         accent=RED,heading_w=110)
+    note(c,"Batch 2 결측 8셀(VarCharge 4, SLOWCYCLE 4)과 Batch 3 결측 2셀은 수명 상관·평가에서 제외.")
+    c.showPage()
+
+    # 3. The short-life population is specific, not a few outliers.
+    frame(c,3,"Q1 · 수명 분포", "Batch 2의 짧은 수명은 일반형 30셀에 몰려 있다",
+          "점 하나가 셀 하나, 검은 선이 집단 중앙값. Batch 2의 레이블 39셀을 구조 표기로 나눴다.")
+    image(c,"r01_life_groups.png",33,132,894,280)
+    band(c,68,58,"해석 → 선택", "일반형 중앙값 451, newstructure 904사이클. Batch 2의 30/39셀이 Batch 1 최솟값 534보다 짧다. 550 기준 이진분류는 Batch 1의 양성 1셀로 불안정하므로 수명 회귀를 택한다.",
+         heading_w=158)
+    note(c,"전체 중앙값: Batch 1 858.5 / Batch 2 472 / Batch 3 1005.5사이클. 분석 단위는 사이클 행이 아닌 셀.")
+    c.showPage()
+
+    # 4. Match nominal charging policy; measure multiple downstream signals.
+    frame(c,4,"Q1 + Q4 · 조건 비교", "같은 충전 문자열이어도 Batch 2 수명은 크게 갈린다",
+          "같은 기본 C-rate 3쌍을 비교했다. 점은 정책별 평균이며 각 newstructure 정책은 3셀뿐이다.")
+    image(c,"r02_matched_three_metrics.png",32,144,895,266)
+    band(c,68,62,"읽을 수 있는 것", "newstructure의 평균 수명은 기본 정책별 +388 / +484 / +543사이클. ΔQ 분산도 낮지만, 초기 QD 기울기는 오히려 더 내려간다. 구조 표기가 함께 바꾼 조건은 분리할 수 없어 인과효과로 단정하지 않는다.",
+         heading_w=168)
+    note(c,"오른쪽 그래프의 양수 = 관측 QD 감소, 음수 = 관측 QD 증가. 초기 QD 기울기는 20~100사이클 선형 기울기×-100.")
+    c.showPage()
+
+    # 5. Full curve vs initial capacity trend; late knee is excluded.
+    frame(c,5,"Q2 · 열화 곡선", "초기 용량이 늘어도 오래 쓰는 셀이라고 할 수 없다",
+          "Batch 2 일반형과 newstructure의 초기 20~100사이클, 이후 전체 수명 곡선을 함께 보았다.")
+    image(c,"r03_batch2_capacity_trajectories.png",33,148,894,264)
+    section_text(c,42,125,422,"초기 관측의 반례",
+                 "일반형은 초기 QD가 상승(-3.7 mAh/100사이클)해도 수명은 451. newstructure는 하강(+7.5)해도 904다. 강건 추정도 -4.0 / +3.8로 같은 방향이다.",
+                 ORANGE,63)
+    section_text(c,504,125,414,"knee는 입력에서 제외",
+                 "사후 휴리스틱은 45/46, 39/39, 44/44셀에서 검출됐다. 검출 여부의 구분력이 거의 없고 미래 곡선을 보므로 예측 시점에는 쓸 수 없다.",
+                 RED,63)
+    note(c,"왼쪽 선은 집단 중앙값, 음영은 IQR. 오른쪽 옅은 선은 각 셀의 전체 기록으로 설명용이며 예측 피처에 넣지 않는다.")
+    c.showPage()
+
+    # 6. A single scalar QD change does not transport across batches.
+    frame(c,6,"Q2 → Q3 · 피처 전환", "단순 용량 변화량은 Batch 2·3에서 수명을 가르지 못한다",
+          "초기 QD100 - QD10과 수명의 셀 단위 Spearman 상관을 배치별로 다시 계산했다.")
+    image(c,"r04_scalar_qd_instability.png",33,142,894,268)
+    band(c,68,62,"보류 → 대안", "Batch 1에서는 ρ=+0.61이지만 Batch 2는 -0.05, Batch 3은 +0.03. 단순 QD 변화량은 주 피처에서 보류하고, 전압 위치별 변화 형태인 ΔQ(V)를 다음 단계에서 검토한다.",
+         heading_w=142)
+    note(c,"QD 변화량은 관측 용량의 변화이지 비가역적 열화 속도의 직접 측정치가 아니다. 초기 형성·측정 조건의 영향이 섞일 수 있다.")
+    c.showPage()
+
+    # 7. Voltage-resolved evidence, while admitting label-defined grouping.
+    frame(c,7,"Q3 · 전압별 변화", "전압별 곡선 변화에는 수명 집단 차이가 보인다",
+          "ΔQ(V)=100사이클 곡선 - 10사이클 곡선. 각 배치의 짧은 1/3과 긴 1/3을 설명용으로 나눴다.")
+    image(c,"r05_delta_q_shape.png",33,142,894,270)
+    band(c,68,62,"해석 → 피처", "노란 2.8~3.1 V 부근에서 짧은 집단의 ΔQ가 더 음수다. 1,000점 전체를 46셀에 넣지 않고 log10 var(ΔQ)를 첫 요약 후보로 둔다. Batch 2의 집단 차이는 구조 차이와 겹친다.",
+         heading_w=154)
+    note(c,"수명으로 그룹을 나눈 그림은 설명용이다. 실제 피처 계산에는 초기 곡선만 사용하고 그룹 레이블을 입력하지 않는다.")
+    c.showPage()
+
+    # 8. Test the alternative explanation, rather than celebrating pooled rho.
+    frame(c,8,"Q3 · 반례 확인", "ΔQ의 전체 상관은 정책을 통제하면 크게 약해진다",
+          "왼쪽: Batch 2 구조별 셀. 오른쪽: 전체 상관과 정책별 평균을 제거한 상관 비교.")
+    image(c,"r06_dq_conditional.png",32,143,895,270)
+    band(c,67,63,"따라서", "전체 ρ=-0.87/-0.71/-0.80 → 정책 내부 -0.15/-0.33/-0.47(B1/2/3). Batch 2 일반형만 보면 -0.38, newstructure만 보면 -0.17. ΔQ만·정책만·결합 모델의 증분 이득을 정책 단위 검증으로 확인한다.",
+         accent=RED,heading_w=111)
+    note(c,"Batch 1 정책 단위 부트스트랩의 내부 상관 95% 구간: -0.50~+0.22. 정책당 반복이 적어 독립 신호 확신은 이르다.")
+    c.showPage()
+
+    # 9. Directly answer charging pattern versus early degradation.
+    frame(c,9,"Q4 · 충전과 초기 변화", "첫 단계 C-rate는 초기 열화와도 일관되게 연결되지 않는다",
+          "y축은 20~100사이클 QD의 관측 기울기다. 양수는 QD 감소, 음수는 QD 증가를 뜻한다.")
+    image(c,"r07_charge_vs_early_change.png",31,145,897,269)
+    band(c,66,65,"두 기준 모두 확인", "첫 C-rate↔QD 기울기 ρ=+0.38/+0.01/+0.09, 첫 C-rate↔ΔQ 분산 +0.54/-0.03/+0.29(B1/2/3). 전환 SOC↔QD 기울기도 -0.09/+0.00/-0.40. C-rate 하나를 안정적인 열화 설명 변수로 취급하지 않는다.",
+         heading_w=157)
+    note(c,"두 번째 C-rate↔QD 기울기: +0.09/+0.16/+0.27. 이 상관들은 정책·구조와 독립적인 인과효과가 아니다.")
+    c.showPage()
+
+    # 10. Q5 is a decision table, not an unfiltered heatmap.
+    frame(c,10,"Q5 · 피처 결정", "용량 변화량은 빼고 ΔQ와 정책을 분리해 검증한다",
+          "강한 전체 상관, 배치 안정성, 정책 내부 신호, 중복 여부를 함께 통과한 후보만 남긴다.")
+    table(c,40,411,[182,288,410],
+          ["피처", "관찰", "DAY 2 결정"],
+          [["log10 var(ΔQ)", "전체 ρ=-0.87/-0.71/-0.80;<br/>정책 내부 -0.15/-0.33/-0.47",
+            "곡선 대표 1개로만 시작. 정책 변수와 제거 실험 후 증분 이득 확인."],
+           ["1·2단계 C-rate,<br/>전환 SOC", "첫 C-rate↔초기 QD 기울기는 +0.38/+0.01/+0.09",
+            "숫자형 정책 입력 후보. 정책만 / ΔQ만 / 결합을 그룹 검증."],
+           ["QD100 - QD10", "수명 ρ=+0.61/-0.05/+0.03",
+            "주 모델에서 제외. ΔQ(V) 형태가 주는 정보와 구분."],
+           ["온도·충전 시간·<br/>추가 ΔQ 통계", "배치별 부호 변화 또는 높은 중복;<br/>B1 ΔQ 평균↔분산 ρ=-0.97",
+            "주 모델에서 보류. 제거 실험과 잔차 점검 때만 후보로 재검토."]],
+          row_h=61,header_h=38)
+    band(c,65,50,"핵심 원칙", "상관 수치로 피처를 확정하지 않는다. 새 정책에도 남는 신호인지 Batch 1 정책 그룹 단위로 먼저 검증한다.",
+         heading_w=135)
+    note(c,"분석은 셀 단위. 스케일링·결측 대치·피처 선택은 이후 각 학습 폴드 안에서만 fit한다.")
+    c.showPage()
+
+    # 11. A primary model and explicit switch conditions.
+    frame(c,11,"주 모델 · 선택 조건", "첫 모델은 Ridge; 검증 근거가 있을 때만 바꾼다",
+          "학습 독립 단위는 46셀이다. 고차원 곡선·중복 피처를 그대로 넣지 않는 보수적인 출발점이다.")
+    c.setFillColor(NAVY);c.roundRect(40,206,405,202,10,fill=1,stroke=0)
+    label(c,"1순위",58,376,12,colors.HexColor("#92DDD5"),True)
+    label(c,"Ridge 회귀",58,330,25,WHITE,True)
+    para(c,"표준화 후 log10 var(ΔQ) 1개와 정책 수치 3개(첫·둘째 C-rate, 전환 SOC). 정규화 강도는 Batch 1 내부 정책 그룹 CV에서 선택한다.",
+         58,309,366,"coverbody",88)
+    section_text(c,479,386,435,"비교 1  /  기준선",
+                 "학습 폴드의 수명 중앙값 예측. Ridge가 정책 홀드아웃에서 이기지 못하면 예측 가능성을 주장하지 않는다.",
+                 ORANGE,72)
+    section_text(c,479,287,435,"비교 2  /  피처 기여",
+                 "ΔQ만·정책만·결합 Ridge를 같은 그룹 CV로 비교. 결합이 낫지 않으면 더 단순한 입력을 채택한다.",
+                 TEAL,72)
+    c.setStrokeColor(LINE);c.line(40,184,920,184)
+    label(c,"대체 모델 채택 조건",40,158,12,RED,True)
+    para(c,"잔차의 굽은 패턴이나 정책×ΔQ 상호작용이 훈련 폴드에서 반복되고, 얕은 트리가 4개 정책 CV 폴드 중 3개 이상에서 Ridge보다 MAPE를 낮출 때만 비교한다. Huber는 이상치 영향 민감도 점검용이며 미관측 EOL을 고치는 방법이 아니다.",
+         40,147,880,"body",79)
+    note(c,"Batch 1 전체 46셀 결과와 종료 근접 36셀 결과가 뒤집히면 레이블 문제를 먼저 보고한다. DAY 1에는 모델을 학습하지 않았다.")
+    c.showPage()
+
+    # 12. Practical evaluation path and its honest limits.
+    frame(c,12,"DAY 2 실행 계획", "모델 선택은 Batch 1에서 끝내고 Batch 2 오류를 읽는다",
+          "검증 기준을 미리 고정한다. 이 과제의 Batch 2 레이블을 DAY 1에 이미 확인했으므로 완전한 블라인드 평가는 아니다.")
+    stages = [
+        (40, "1", "Batch 1 학습", "23개 정책 중 약 20%를 그룹 홀드아웃. 나머지에서 4-fold GroupKFold로 Ridge와 입력군 선택."),
+        (340, "2", "Batch 1 검증", "홀드아웃 정책에 한 번 적용. 전체 46셀과 종료 근접 36셀 민감도 확인."),
+        (640, "3", "Batch 2 외부 진단", "선택을 고정한 뒤 레이블 39셀 평가. 일반형 30 / newstructure 9를 분리해 오류 해석."),
+    ]
+    for x,num,head,body in stages:
+        c.setFillColor(TEAL);c.circle(x+15,390,15,fill=1,stroke=0)
+        c.setFillColor(WHITE);c.setFont("NanumBold",12);c.drawCentredString(x+15,385,num)
+        label(c,head,x,353,13,NAVY,True)
+        para(c,body,x,339,273,"body",112)
+    c.setStrokeColor(LINE);c.line(40,210,920,210)
+    section_text(c,40,188,423,"보고할 오류",
+                 "Train(CV) / Valid / Test MAPE와 MAE, 실제 수명 &lt;534 구간의 오차·과대 예측률, Batch 2 구조별 오류. 평균 한 숫자만 제시하지 않는다.",
+                 ORANGE,90)
+    section_text(c,501,188,416,"해석의 경계",
+                 "원저자 코드의 Batch 2는 2017-06-30, 과제는 2018-02-20이다. 논문 9.1%는 동일 분할 성능 기준이 아니다. 실험실 소형 셀 결과를 ESS 현장 비용에 바로 환산하지 않는다.",
+                 RED,90)
+    label(c,"자료: 노션 과제 · 강의 전사본 · 공개 원본 .mat · 원저자 LoadData.m · Severson et al. (2019)",40,62,9,MUTED)
+    c.linkURL("https://actually-war-1ea.notion.site/DS-Mini-Project-32d7f4c8669380338a27f90c471c1fcb",(40,55,178,71))
+    c.linkURL("https://github.com/rdbraatz/data-driven-prediction-of-battery-cycle-life-before-capacity-degradation",(185,55,425,71))
+    c.linkURL("https://www.nature.com/articles/s41560-019-0356-8",(432,55,631,71))
     c.showPage()
     c.save()
     print(OUT)
