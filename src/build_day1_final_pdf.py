@@ -13,14 +13,14 @@ from reportlab.lib.styles import ParagraphStyle
 from reportlab.lib.utils import ImageReader
 
 R=Path(__file__).resolve().parents[1];OUT=R/'results/final';FIG=OUT/'figures';TAB=OUT/'tables'
-DEST=R/'deliverables/DS-MINI-Design-울산캠퍼스_2반-안동선.pdf'
+DEST=R/'deliverables/DS-MINI-Design-울산캠퍼스_2반-안동선+김민솔.pdf'
 FONT='/System/Library/AssetsV2/com_apple_MobileAsset_Font7/bad9b4bf17cf1669dde54184ba4431c22dcad27b.asset/AssetData/NanumGothic.ttc'
 pdfmetrics.registerFont(TTFont('NG',FONT,subfontIndex=0));pdfmetrics.registerFont(TTFont('NGB',FONT,subfontIndex=1))
 pdfmetrics.registerFontFamily('NG',normal='NG',bold='NGB',italic='NG',boldItalic='NGB')
 W,H=960,540
 INK='#20374B';MUTED='#647987';TEAL='#168579';BLUE='#316C9B';RED='#C5514E';AMBER='#C77E29';PURPLE='#8360A8';RULE='#DBE4EA';LIGHT='#F0F5F7';MINT='#EAF5F1'
 C=canvas.Canvas(str(DEST),pagesize=(W,H),pageCompression=1)
-C.setTitle('EDA to Model Strategy | 초기 100사이클 기반 배터리 수명 예측');C.setAuthor('안동선 · 울산캠퍼스 2반');C.setSubject('핵심 변수 분포와 해석, EDA에서 피처 설계 및 모델 선택으로의 연결')
+C.setTitle('EDA to Model Strategy | 초기 100사이클 기반 배터리 수명 예측');C.setAuthor('안동선 · 김민솔 · 울산캠퍼스 2반');C.setSubject('핵심 변수 분포와 해석, EDA에서 피처 설계 및 모델 선택으로의 연결')
 PAGES=[];TEXT=[];INDEX=[]
 CHAPTER=0;CHAPTER_PAGE=0;APPENDIX_PAGE=0
 CHAPTERS={
@@ -51,12 +51,13 @@ def sheet(tag,title,label,kind,chapter=0):
     if PAGES:C.showPage()
     PAGES.append((tag,title));C.setFillColor(white);C.rect(0,0,W,H,fill=1,stroke=0)
     INDEX.append(dict(page=len(PAGES),number=label,chapter=chapter,kind=kind,section=tag,title=title))
-    C.addPageLabel(len(PAGES)-1,prefix=label)
+    C.addPageLabel(len(PAGES)-1,prefix=str(len(PAGES)))
     C.bookmarkPage(f'p{len(PAGES)}')
     if kind=='appendix' and APPENDIX_PAGE==1:
         C.addOutlineEntry('부록',f'p{len(PAGES)}',0,False)
+    level=2 if kind=='body' and chapter==1 else 1 if kind in ('body','appendix','question') else 0
     C.addOutlineEntry(f'{label}  {title}' if kind in ('body','appendix') else title,
-                      f'p{len(PAGES)}',1 if kind in ('body','appendix') else 0,False)
+                      f'p{len(PAGES)}',level,False)
 
 def page(tag,title,scope=''):
     global CHAPTER_PAGE,APPENDIX_PAGE
@@ -66,22 +67,20 @@ def page(tag,title,scope=''):
         CHAPTER_PAGE+=1;label=f'{CHAPTER}-{CHAPTER_PAGE}';chapter=CHAPTER;kind='body';color=CHAPTERS[CHAPTER][2]
     sheet(tag,title,label,kind,chapter)
     rect(0,0,6,H,color)
-    is_question=title.startswith(('Q1.','Q2.','Q3.','Q4.','Q5.'))
-    if is_question:
-        text('01 · EDA',40,24,875,11,color,bold=True,leading=16)
-        text(label+')',40,50,93,23,color,bold=True,leading=32,maxh=33)
-        title_size=25
-        while pdfmetrics.stringWidth(title,'NGB',title_size)>779:title_size-=.5
-        text(title,139,51,780,title_size,bold=True,leading=33,maxh=34)
-    else:
-        text(label,40,20,78,19,color,bold=True,leading=25,maxh=26)
-        text(tag,125,25,790,11,color,bold=True,leading=16,maxh=17)
-        text(title,40,53,875,29,bold=True,leading=36,maxh=37)
+    section='부록' if chapter=='A' else f'{chapter:02d} · {CHAPTERS[chapter][0]}'
+    text(section,40,24,875,11,color,bold=True,leading=16)
+    number_text=label+')'
+    number_width=pdfmetrics.stringWidth(number_text,'NGB',25)
+    title_x=40+number_width+10
+    title_width=920-title_x
+    title_size=25
+    assert pdfmetrics.stringWidth(title,'NGB',title_size)<=title_width-1,title
+    text(number_text,40,50,number_width+1,25,color,bold=True,leading=35,maxh=36)
+    text(title,title_x,50,title_width,title_size,bold=True,leading=35,maxh=36)
     if scope:text(scope,42,101,875,11,MUTED,leading=15,maxh=16)
     line(40,505,880)
-    section='부록' if chapter=='A' else f'{chapter:02d} · {CHAPTERS[chapter][0]}'
-    text(f'안동선 · 울산캠퍼스 2반  |  {section}',42,516,620,8,MUTED,leading=10)
-    C.setFont('NGB',14);C.setFillColor(HexColor(INK));C.drawRightString(920,14,label)
+    text(f'안동선 · 김민솔 · 울산캠퍼스 2반  |  {section}',42,516,620,8,MUTED,leading=10)
+    C.setFont('NGB',12);C.setFillColor(HexColor(INK));C.drawRightString(920,14,f'{len(PAGES):02d}')
 
 def chapter(number):
     global CHAPTER,CHAPTER_PAGE
@@ -94,6 +93,15 @@ def chapter(number):
     text(f'{number:02d} · {name}',66,218,829,45,color,bold=True,leading=58)
     text(subtitle,69,294,824,29,bold=True,leading=42)
     for i in range(1,4):rect(70+(i-1)*36,447,26,3,color if i==number else RULE)
+
+def question(number,prompt):
+    sheet(f'Q{number}',f'Q{number}. {prompt}',f'Q{number}','question',1)
+    rect(0,0,8,H,BLUE)
+    text('01 · EDA',68,43,820,12,BLUE,bold=True)
+    line(69,161,59,BLUE,3)
+    text(f'Q{number}.',66,187,827,48,BLUE,bold=True,leading=62)
+    text(prompt.replace(' - ',' -\n'),69,280,824,32,bold=True,leading=47,maxh=102)
+    for i in range(1,6):rect(70+(i-1)*36,447,26,3,BLUE if i==number else RULE)
 
 def takeaway(s,y=437,h=57,size=19):
     rect(40,y,880,h,MINT);rect(40,y,4,h,TEAL);text(s,57,y+12,845,size,TEAL,bold=True,leading=size*1.32,maxh=h-19)
@@ -122,13 +130,14 @@ text('초기 100사이클 기반 배터리 수명 예측',69,161,823,17,MUTED,le
 line(69,254,824)
 for x,num,head,body in [(69,'01 · EDA','분포와 관계 탐색','Q1~Q5의 답을\n세 배치의 근거로 정리'),(350,'02 · EDA → 전략','관찰에서 선택으로','신호를 다시 검토하고\n남길 변수와 변환을 결정'),(631,'03 · 모델 설계','선택 근거와 검증','회귀·타깃을 정하고\n모델과 검증 조건을 설계')]:
     text(num,x,282,250,12,TEAL,bold=True);text(head,x,314,260,20,bold=True);text(body,x,356,258,16,leading=25)
-text('울산캠퍼스 2반 · 안동선',69,483,620,11,MUTED,leading=15)
+text('울산캠퍼스 2반 · 안동선 · 김민솔',69,483,620,11,MUTED,leading=15)
 C.setFont('NG',11);C.setFillColor(HexColor(MUTED));C.drawRightString(893,42,'2026.10.01')
 
 chapter(1)
 
 # 04 - source page identity
-page('Q1','Q1. Cycle Life 분포는 어떻게 생겼는가?','레이블 보유 B1 46셀 / B2 39셀 / B3 44셀 · 동일한 150~2,300 구간')
+question(1,'Cycle Life 분포는 어떻게 생겼는가?')
+page('Q1','Cycle Life 분포','레이블 보유 B1 46셀 / B2 39셀 / B3 44셀 · 동일한 150~2,300 구간')
 pic('life_histogram',36,126,889,251)
 table(['수명 구간','B1','B2','B3'],[['500 미만','0 / 46','28 / 39 (71.8%)','0 / 44'],['1,000 초과','10 / 46 (21.7%)','3 / 39 (7.7%)','23 / 44 (52.3%)']],49,372,[210,212,212,212],rowh=22,size=11)
 takeaway('B1에 없는 <500사이클 구간이 B2의 72%다. B1 검증만으로 이 구간을 판단하기 어렵다.',y=450,h=43,size=16)
@@ -141,7 +150,8 @@ text('초기 상태 차이를 의심할 근거는 있다. 다만 3셀 비교만�
 text('B1 c20: 534·동일 정책 559 / B2 c19: 392·동일 정책 408 → 한 셀만의 오류라는 증거는 약하다.',49,463,853,12,MUTED,leading=18)
 
 # 07 - source page identity
-page('Q2','Q2. 열화 곡선 - 방전 용량이 어떻게 감소하는가?','끝 QD≤0.885 Ah: B1 36 / B2 39 / B3 44셀 · 진한 선=대표 셀 · 음영=초기 100사이클')
+question(2,'열화 곡선 - 방전 용량이 어떻게 감소하는가?')
+page('Q2','용량 감소와 급변 시점','끝 QD≤0.885 Ah: B1 36 / B2 39 / B3 44셀 · 진한 선=대표 셀 · 음영=초기 100사이클')
 pic('full_trajectories',34,132,894,267)
 text('용량은 후반에 더 빠르게 줄지만, 그 급변 시점은 예측 시점 이후에 보인다.',46,413,866,20,bold=True,leading=28)
 text('탐색 knee 중앙값: B1 579 / B2 361 / B3 827사이클. 전체 경로로 계산한 knee는 입력에서 제외한다.',46,469,866,12,TEAL,leading=18)
@@ -155,14 +165,16 @@ takeaway('초기 용량 기울기를 일정한 열화 속도로 보기 어렵다
 text('짧은 구간 기울기를 100사이클 단위로 환산. 양수=감소, 음수=증가. 공백의 원인은 장비 로그가 필요하다.',47,411,865,10,MUTED,leading=14)
 
 # 09 - source page identity
-page('Q3','Q3. ΔQ(V) 곡선 - 초기 사이클에서 차이가 보이는가?','ΔQ(V)=Q100(V)-Q10(V) · 배치별 수명 상·하위 1/3 · Q1의 고정 수명 기준과 구분')
+question(3,'ΔQ(V) 곡선 - 초기 사이클에서 차이가 보이는가?')
+page('Q3','전압별 초기 신호','ΔQ(V)=Q100(V)-Q10(V) · 배치별 수명 상·하위 1/3 · Q1의 고정 수명 기준과 구분')
 pic('dq_all',36,137,889,270)
 text('총용량 변화보다, 전압에 따라 변화가 달라지는 모양을 후보로 삼았다.',46,418,868,20,bold=True,leading=28)
 text('짧은 수명 쪽의 변화 폭이 더 크다 → 1,000점 곡선을 분산 1개로 요약한다.',47,462,868,14,TEAL,leading=21)
 text('분산은 전압 1,000점의 ΔQ에 대해 계산(ddof=0). 평균·최솟값과의 중복은 Q5에서 확인한다.',47,488,868,9,MUTED,leading=12)
 
 # 12 - source page identity
-page('Q4','Q4. 충전 조건 (C-rate)과 수명의 관계는?','정책별 평균·범위 · 상관은 셀 기준 · 녹색=newstructure · 정책표 A-2~A-3')
+question(4,'충전 조건 (C-rate)과 수명의 관계는?')
+page('Q4','충전 조건과 수명','정책별 평균·범위 · 상관은 셀 기준 · 녹색=newstructure · 정책표 A-2~A-3')
 pic('policy_mean_scatter',36,130,889,251)
 text('빠른 충전과 짧은 수명의 관계는 배치마다 달랐다.',45,395,870,20,bold=True,leading=29)
 text('첫 C-rate ↔ 수명: B1 -0.48 / B2 +0.06 / B3 -0.23',47,434,865,14,TEAL,bold=True)
@@ -184,7 +196,8 @@ text('여러 사이클을 봐도\n배치 간 관계는 같아지지 않았다.',
 text('고전류 시간 비율은 비교적 안정적이지만,\n수명·용량 감소와의 관계는 배치마다 다르다.\n정책 변수와 별개인 주 입력으로 추가하지 않는다.',586,408,328,14,leading=22)
 
 # 23 - Q5: all initial features belong in the EDA narrative.
-page('Q5','Q5. 상관관계 - 어떤 신호가 수명과 연관되어 있는가?','Spearman 상관 · B1 46 / B2 39 / B3 44셀 · B2 IR은 0값 제외 후 33셀')
+question(5,'상관관계 - 어떤 신호가 수명과 연관되어 있는가?')
+page('Q5','초기 피처와 수명의 상관관계','Spearman 상관 · B1 46 / B2 39 / B3 44셀 · B2 IR은 0값 제외 후 33셀')
 pic('question_feature_correlations',33,129,588,353)
 para('ΔQ 통계가 수명과\n가장 강하게 연결됐다.','분산·평균·최솟값 모두\n세 배치에서 큰 상관을 보였다.\n분산은 -0.87 / -0.71 / -0.80이다.',655,150,260,22,15)
 text('QD 변화량·충전 시간은\n배치가 바뀌면 방향도 달라진다.\nB1에서 큰 상관만 보고\n피처를 고르기는 어렵다.',655,343,260,15,leading=24)
