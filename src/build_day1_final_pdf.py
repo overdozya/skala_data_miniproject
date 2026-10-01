@@ -251,13 +251,25 @@ chapter(3)
 
 # Regression/Classification and target definition, following the feature plan.
 page('Regression vs Classification','예측 방식과 타깃 선택','초기 100사이클을 관측한 시점의 예측 문제')
-text('회귀로 총 Cycle Life를 예측한다.',47,139,866,26,bold=True,leading=36)
-para('회귀를 선택한 이유','분류 기준 550사이클 미만은\nB1에서 1셀뿐이다.\n이 표본으로 분류 경계를 배우기 어렵다.',49,211,404,21,16)
-para('예측할 값','100사이클까지의 기록 → 저장 cycle_life\n단위는 총 사이클 수다.\nB1에서는 종료 수명의 근사값으로 쓴다.',508,211,402,21,16)
-line(49,356,861)
-text('수명 변환은 별도 비교',49,375,861,17,TEAL,bold=True)
-text('B1 종료 근접 36셀의 수명 왜도는 +0.30으로 크지 않다.\n원래 수명과 로그 수명을 비교하고, 원 단위로 복원한 MAPE로 선택한다.',49,416,861,16,leading=25)
-text('입력 ΔQ의 로그 변환이 수명까지 로그로 바꿔야 한다는 근거는 아니다.',49,480,861,10,MUTED,leading=14)
+target_cards=[
+    (137,'회귀 선택 이유','회귀로 총 Cycle Life를 예측한다.',
+     '분류 기준 550사이클 미만은 B1에서 1셀뿐이다.\n이 표본으로 분류 경계를 학습하기 어렵다.',
+     '',MINT,'#D5E6E0'),
+    (257,'예측할 값','초기 100사이클 기록 → 저장 cycle_life',
+     '타깃은 총 사이클 수다.\nB1에서는 종료 수명의 근사값으로 사용한다.',
+     '',LIGHT,RULE),
+    (377,'수명 변환 비교','원래 수명과 로그 수명을 비교한다.',
+     'B1 종료 근접 36셀의 수명 왜도는 +0.30으로 크지 않다.\n원 단위로 복원한 MAPE로 선택한다.',
+     '입력 ΔQ의 로그 변환과 수명 변환은 별도로 판단한다.',LIGHT,RULE),
+]
+for y,label,head,body,note,fill,border in target_cards:
+    C.setFillColor(HexColor(fill));C.setStrokeColor(HexColor(border));C.setLineWidth(.8)
+    C.roundRect(40,H-y-108,880,108,11,fill=1,stroke=1)
+    text(label,64,y+40,173,18,TEAL,bold=True,leading=26,maxh=27)
+    C.setStrokeColor(HexColor(border));C.line(253,H-y-22,253,H-y-86)
+    text(head,278,y+15,616,19,bold=True,leading=27,maxh=28)
+    text(body,278,y+46,616,14,leading=21,maxh=43)
+    if note:text(note,278,y+88,616,10,MUTED,leading=14,maxh=15)
 
 # 03 - source page identity
 page('Modeling Strategy · 레이블 처리','수명 레이블 점검','EOL 기준 QD <0.88 Ah · 종료 근접 점검선 0.885 Ah')
