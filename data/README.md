@@ -13,3 +13,6 @@ This assignment uses `2017-05-12` (Batch 1), `2018-02-20` (Batch 2), and
 and excluded from the DAY 1 analysis. The source author's lifetime-prediction
 code instead uses `2017-06-30` as its second batch; see the root README for why
 the published 9.1% error is a reference rather than an identical split.
+
+
+hi hello
