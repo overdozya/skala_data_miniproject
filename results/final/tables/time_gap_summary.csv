@@ -1,0 +1,5 @@
+batch,protocol_family,n,cells_with_gaps,max_gap_min
+batch1,standard,46,1,3295.7841183333335
+batch2_notion,newstructure,9,9,3921.321876666667
+batch2_notion,standard,30,30,3921.4245200000005
+batch3,newstructure,44,0,0.0

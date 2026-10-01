@@ -1,0 +1,5 @@
+batch,protocol_family,n,mean,minimum,maximum,logvar
+batch1,standard,2,753.0,636.0,870.0,-3.791181988777355
+batch2_notion,standard,5,483.6,437.0,514.0,-3.5037905350378282
+batch2_notion,newstructure,3,871.6666666666666,777.0,1029.0,-4.211639391231773
+batch3,newstructure,6,1564.1666666666667,1078.0,1836.0,-4.5934188244187615

@@ -1,0 +1,440 @@
+{
+  "n_all": 139,
+  "n_labeled": 129,
+  "primary_n": 36,
+  "batches": {
+    "batch1": {
+      "n": 46,
+      "median": 858.5,
+      "short": 0,
+      "long": 10,
+      "min": 534.0,
+      "max": 1227.0,
+      "raw_skew": 0.4528635746760724,
+      "log_skew": 0.03959913869796985,
+      "cells_with_time_gaps": 1,
+      "current_integral_ratio": 0.9105167701752517
+    },
+    "batch2_notion": {
+      "n": 39,
+      "median": 472.0,
+      "short": 28,
+      "long": 3,
+      "min": 392.0,
+      "max": 1186.0,
+      "raw_skew": 1.636830072481719,
+      "log_skew": 1.356661585196879,
+      "cells_with_time_gaps": 39,
+      "current_integral_ratio": 0.9115043417268067
+    },
+    "batch3": {
+      "n": 44,
+      "median": 1005.5,
+      "short": 0,
+      "long": 23,
+      "min": 541.0,
+      "max": 1935.0,
+      "raw_skew": 1.2550786821213378,
+      "log_skew": 0.5182336606157795,
+      "cells_with_time_gaps": 0,
+      "current_integral_ratio": 0.9206209757641207
+    }
+  },
+  "primary": {
+    "n": 36,
+    "policies": 20,
+    "median": 772.5,
+    "raw_skew": 0.3000526055933697,
+    "log_skew": -0.012104288631346851,
+    "max": 1074.0,
+    "min": 534.0
+  },
+  "b3_author_sensitivity": {
+    "excluded_ids": [
+      "batch3_c37",
+      "batch3_c02",
+      "batch3_c42",
+      "batch3_c43"
+    ],
+    "n_after": 40,
+    "rho_all": -0.7972372984772357,
+    "rho_clean": -0.7586077526583466
+  },
+  "conditional": [
+    {
+      "group": "Batch 1",
+      "n": 46,
+      "within_n": 45,
+      "policies": 22,
+      "pooled": -0.8711607269559923,
+      "centered": -0.14730878218936605,
+      "ci_low": -0.5047,
+      "ci_high": 0.2533
+    },
+    {
+      "group": "Batch 2",
+      "n": 39,
+      "within_n": 39,
+      "policies": 12,
+      "pooled": -0.7089786451951733,
+      "centered": -0.33221954932286824,
+      "ci_low": -0.5489,
+      "ci_high": -0.1032
+    },
+    {
+      "group": "Batch 3",
+      "n": 44,
+      "within_n": 44,
+      "policies": 8,
+      "pooled": -0.7972372984772357,
+      "centered": -0.4748414376321353,
+      "ci_low": -0.8085,
+      "ci_high": -0.0762
+    },
+    {
+      "group": "B1 종료 근접",
+      "n": 36,
+      "within_n": 32,
+      "policies": 16,
+      "pooled": -0.8262324691948716,
+      "centered": -0.11217008797653959,
+      "ci_low": -0.5949,
+      "ci_high": 0.3849
+    }
+  ],
+  "ir_quality": [
+    {
+      "batch": "batch1",
+      "n": 46,
+      "zero_ir10_or100": 0,
+      "raw_ir_delta_rho": -0.24028617290056964,
+      "clean_ir_delta_rho": -0.24028617290056964,
+      "clean_ir_n": 46
+    },
+    {
+      "batch": "batch2_notion",
+      "n": 39,
+      "zero_ir10_or100": 6,
+      "raw_ir_delta_rho": 0.11504351143589132,
+      "clean_ir_delta_rho": 0.12183504680291295,
+      "clean_ir_n": 33
+    },
+    {
+      "batch": "batch3",
+      "n": 44,
+      "zero_ir10_or100": 0,
+      "raw_ir_delta_rho": -0.3125660730857974,
+      "clean_ir_delta_rho": -0.3125660730857974,
+      "clean_ir_n": 44
+    }
+  ],
+  "dq_origin": [
+    {
+      "batch": "batch1",
+      "max_abs_offset_mAh": 0.3984813988208771,
+      "median_offset_mAh": -0.03148297220468521,
+      "var_max_abs_difference": 5.820766091346741e-11,
+      "mean_raw_rho": 0.8281115101478308,
+      "mean_aligned_rho": 0.8212038994278965
+    },
+    {
+      "batch": "batch2_notion",
+      "max_abs_offset_mAh": 1.086474061012268,
+      "median_offset_mAh": -0.03450833633542061,
+      "var_max_abs_difference": 5.820766091346741e-11,
+      "mean_raw_rho": 0.6972365659772065,
+      "mean_aligned_rho": 0.6980463645439628
+    },
+    {
+      "batch": "batch3",
+      "max_abs_offset_mAh": 0.19730445742607117,
+      "median_offset_mAh": -0.005406297743320465,
+      "var_max_abs_difference": 2.9103830456733704e-11,
+      "mean_raw_rho": 0.7561491314853485,
+      "mean_aligned_rho": 0.7598844193937019
+    }
+  ],
+  "charging_associations": [
+    {
+      "batch": "batch1",
+      "predictor": "first_c_rate",
+      "outcome": "cycle_life",
+      "n": 46,
+      "rho": -0.48271400298540956
+    },
+    {
+      "batch": "batch1",
+      "predictor": "first_c_rate",
+      "outcome": "early_qd_loss_robust_per_100_cycles",
+      "n": 46,
+      "rho": 0.38351467795662453
+    },
+    {
+      "batch": "batch1",
+      "predictor": "first_c_rate",
+      "outcome": "log10_dq_var",
+      "n": 46,
+      "rho": 0.5395785716597657
+    },
+    {
+      "batch": "batch1",
+      "predictor": "second_c_rate",
+      "outcome": "cycle_life",
+      "n": 46,
+      "rho": 0.04741433338534666
+    },
+    {
+      "batch": "batch1",
+      "predictor": "second_c_rate",
+      "outcome": "early_qd_loss_robust_per_100_cycles",
+      "n": 46,
+      "rho": 0.10386008338516325
+    },
+    {
+      "batch": "batch1",
+      "predictor": "second_c_rate",
+      "outcome": "log10_dq_var",
+      "n": 46,
+      "rho": -0.0659994201603806
+    },
+    {
+      "batch": "batch1",
+      "predictor": "switch_soc_pct",
+      "outcome": "cycle_life",
+      "n": 46,
+      "rho": 0.18515925395200944
+    },
+    {
+      "batch": "batch1",
+      "predictor": "switch_soc_pct",
+      "outcome": "early_qd_loss_robust_per_100_cycles",
+      "n": 46,
+      "rho": -0.09435719316015517
+    },
+    {
+      "batch": "batch1",
+      "predictor": "switch_soc_pct",
+      "outcome": "log10_dq_var",
+      "n": 46,
+      "rho": -0.19810004876992787
+    },
+    {
+      "batch": "batch1",
+      "predictor": "high_current_fraction10",
+      "outcome": "cycle_life",
+      "n": 46,
+      "rho": -0.28992845745755835
+    },
+    {
+      "batch": "batch1",
+      "predictor": "high_current_fraction10",
+      "outcome": "early_qd_loss_robust_per_100_cycles",
+      "n": 46,
+      "rho": 0.16112314082938928
+    },
+    {
+      "batch": "batch1",
+      "predictor": "high_current_fraction10",
+      "outcome": "log10_dq_var",
+      "n": 46,
+      "rho": 0.26430119194648577
+    },
+    {
+      "batch": "batch2_notion",
+      "predictor": "first_c_rate",
+      "outcome": "cycle_life",
+      "n": 39,
+      "rho": 0.05509278655119761
+    },
+    {
+      "batch": "batch2_notion",
+      "predictor": "first_c_rate",
+      "outcome": "early_qd_loss_robust_per_100_cycles",
+      "n": 39,
+      "rho": 0.04313432487083198
+    },
+    {
+      "batch": "batch2_notion",
+      "predictor": "first_c_rate",
+      "outcome": "log10_dq_var",
+      "n": 39,
+      "rho": -0.02785541943465776
+    },
+    {
+      "batch": "batch2_notion",
+      "predictor": "second_c_rate",
+      "outcome": "cycle_life",
+      "n": 39,
+      "rho": -0.11884016238051073
+    },
+    {
+      "batch": "batch2_notion",
+      "predictor": "second_c_rate",
+      "outcome": "early_qd_loss_robust_per_100_cycles",
+      "n": 39,
+      "rho": 0.16107585212944175
+    },
+    {
+      "batch": "batch2_notion",
+      "predictor": "second_c_rate",
+      "outcome": "log10_dq_var",
+      "n": 39,
+      "rho": 0.2017816832993581
+    },
+    {
+      "batch": "batch2_notion",
+      "predictor": "switch_soc_pct",
+      "outcome": "cycle_life",
+      "n": 39,
+      "rho": 0.28781347990487877
+    },
+    {
+      "batch": "batch2_notion",
+      "predictor": "switch_soc_pct",
+      "outcome": "early_qd_loss_robust_per_100_cycles",
+      "n": 39,
+      "rho": 0.013454585840115312
+    },
+    {
+      "batch": "batch2_notion",
+      "predictor": "switch_soc_pct",
+      "outcome": "log10_dq_var",
+      "n": 39,
+      "rho": -0.15744946635799062
+    },
+    {
+      "batch": "batch2_notion",
+      "predictor": "high_current_fraction10",
+      "outcome": "cycle_life",
+      "n": 39,
+      "rho": 0.05314303094338464
+    },
+    {
+      "batch": "batch2_notion",
+      "predictor": "high_current_fraction10",
+      "outcome": "early_qd_loss_robust_per_100_cycles",
+      "n": 39,
+      "rho": -0.05020242914979757
+    },
+    {
+      "batch": "batch2_notion",
+      "predictor": "high_current_fraction10",
+      "outcome": "log10_dq_var",
+      "n": 39,
+      "rho": 0.0022267206477732796
+    },
+    {
+      "batch": "batch3",
+      "predictor": "first_c_rate",
+      "outcome": "cycle_life",
+      "n": 44,
+      "rho": -0.22887519748075072
+    },
+    {
+      "batch": "batch3",
+      "predictor": "first_c_rate",
+      "outcome": "early_qd_loss_robust_per_100_cycles",
+      "n": 44,
+      "rho": 0.13841373132325469
+    },
+    {
+      "batch": "batch3",
+      "predictor": "first_c_rate",
+      "outcome": "log10_dq_var",
+      "n": 44,
+      "rho": 0.2893377946420952
+    },
+    {
+      "batch": "batch3",
+      "predictor": "second_c_rate",
+      "outcome": "cycle_life",
+      "n": 44,
+      "rho": 0.015736317835818345
+    },
+    {
+      "batch": "batch3",
+      "predictor": "second_c_rate",
+      "outcome": "early_qd_loss_robust_per_100_cycles",
+      "n": 44,
+      "rho": 0.2314856355918654
+    },
+    {
+      "batch": "batch3",
+      "predictor": "second_c_rate",
+      "outcome": "log10_dq_var",
+      "n": 44,
+      "rho": -0.07747682497360393
+    },
+    {
+      "batch": "batch3",
+      "predictor": "switch_soc_pct",
+      "outcome": "cycle_life",
+      "n": 44,
+      "rho": 0.44332485175807257
+    },
+    {
+      "batch": "batch3",
+      "predictor": "switch_soc_pct",
+      "outcome": "early_qd_loss_robust_per_100_cycles",
+      "n": 44,
+      "rho": -0.4500366663039289
+    },
+    {
+      "batch": "batch3",
+      "predictor": "switch_soc_pct",
+      "outcome": "log10_dq_var",
+      "n": 44,
+      "rho": -0.44953718054776476
+    },
+    {
+      "batch": "batch3",
+      "predictor": "high_current_fraction10",
+      "outcome": "cycle_life",
+      "n": 44,
+      "rho": 0.3955176555033811
+    },
+    {
+      "batch": "batch3",
+      "predictor": "high_current_fraction10",
+      "outcome": "early_qd_loss_robust_per_100_cycles",
+      "n": 44,
+      "rho": -0.0383368569415081
+    },
+    {
+      "batch": "batch3",
+      "predictor": "high_current_fraction10",
+      "outcome": "log10_dq_var",
+      "n": 44,
+      "rho": -0.5338971106412966
+    }
+  ],
+  "primary_rho_dq": -0.8262324691948716,
+  "primary_redundancy_rate_soc": -0.8781593165651349,
+  "primary_redundancy_dq_mean": -0.9660231660231662,
+  "primary_redundancy_dq_min": -0.9876447876447877,
+  "planned_split": {
+    "train_n": 28,
+    "train_policies": 16,
+    "valid_n": 8,
+    "valid_policies": 4,
+    "cv_sizes": [
+      [
+        21,
+        7
+      ],
+      [
+        21,
+        7
+      ],
+      [
+        21,
+        7
+      ],
+      [
+        21,
+        7
+      ]
+    ],
+    "seed": 20261001
+  }
+}

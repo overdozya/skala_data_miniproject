@@ -1,0 +1,7 @@
+batch,protocol_family,total,labeled
+batch1,standard,46,46
+batch2_notion,newstructure,9,9
+batch2_notion,slowcycle,4,0
+batch2_notion,standard,30,30
+batch2_notion,varcharge,4,0
+batch3,newstructure,46,44

@@ -1,0 +1,4 @@
+batch,cell_id,life,policy,peers,peer_min,peer_max,observed_cross
+batch1,batch1_c20,534.0,5.4C(80%)-5.4C,2,534.0,559.0,False
+batch2_notion,batch2_notion_c19,392.0,6C(60%)-3C,2,392.0,408.0,True
+batch3,batch3_c28,541.0,3.7C(31%)-5.9C-newstructure,3,541.0,772.0,False
