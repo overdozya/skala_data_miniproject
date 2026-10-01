@@ -1,0 +1,14 @@
+{
+  "transform": {
+    "raw_var_skew": 1.1085571584209546,
+    "log_var_skew": 0.21760386502215398,
+    "raw_target_skew": 0.3000526055933697,
+    "log_target_skew": -0.012104288631346851
+  },
+  "policy_same_sample": {
+    "n": 32,
+    "policies": 16,
+    "pooled": -0.8173403022138096,
+    "centered": -0.11217008797653959
+  }
+}
