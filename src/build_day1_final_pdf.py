@@ -28,6 +28,18 @@ CHAPTERS={
     2:('EDA → 전략','관찰에서 선택으로',TEAL),
     3:('모델 설계','선택 근거와 검증',ROSE),
 }
+THEMES={
+    1:dict(accent=BLUE,tint='#EDF4FA',border='#D4E2EF',header='#285B82'),
+    2:dict(accent=TEAL,tint=MINT,border='#D5E6E0',header='#176A62'),
+    3:dict(accent=ROSE,tint='#FBEFF0',border='#EFD7DA',header='#B35660'),
+}
+
+def theme():
+    current=INDEX[-1]['chapter'] if INDEX else 0
+    return THEMES.get(current,dict(accent=TEAL,tint=LIGHT,border=RULE,header=INK))
+
+def accent():
+    return theme()['accent']
 
 def text(s,x,y,w,size=15,color=INK,bold=False,leading=None,maxh=None,align='left'):
     s=s.replace('−','-').replace('–','-').replace('—','-')
@@ -99,23 +111,23 @@ def question(number,prompt):
     text(prompt,68,281,824,24,bold=True,leading=36,maxh=74,align='center')
 
 def takeaway(s,y=437,h=57,size=19):
-    rect(40,y,880,h,MINT);rect(40,y,4,h,TEAL);text(s,57,y+12,845,size,TEAL,bold=True,leading=size*1.32,maxh=h-19)
+    rect(40,y,880,h,theme()['tint']);rect(40,y,4,h,accent());text(s,57,y+12,845,size,accent(),bold=True,leading=size*1.32,maxh=h-19)
 
-def para(head,body,x,y,w,headsize=21,size=15,color=TEAL):
-    end=text(head,x,y,w,headsize,color,bold=True,leading=headsize*1.35)
+def para(head,body,x,y,w,headsize=21,size=15,color=None):
+    end=text(head,x,y,w,headsize,color or accent(),bold=True,leading=headsize*1.35)
     return text(body,x,end+14,w,size,leading=size*1.5)
 
 def table(headers,rows,x,y,widths,rowh=30,size=12,headsize=11):
-    rect(x,y,sum(widths),rowh,INK);pad=6 if rowh>=28 else (3 if rowh>=20 else 1)
+    rect(x,y,sum(widths),rowh,theme()['header']);pad=6 if rowh>=28 else (3 if rowh>=20 else 1)
     lead=min(size*1.28,rowh-pad*2)
     for row_idx,row in enumerate([headers]+rows):
         yy=y+row_idx*rowh
-        if row_idx and row_idx%2:rect(x,yy,sum(widths),rowh,LIGHT)
+        if row_idx and row_idx%2:rect(x,yy,sum(widths),rowh,theme()['tint'])
         xx=x
         for value,w in zip(row,widths):
             text(str(value),xx+8,yy+pad,w-16,headsize if row_idx==0 else size,'#FFFFFF' if row_idx==0 else INK,bold=row_idx==0,leading=lead,maxh=rowh-pad)
             xx+=w
-        if row_idx:line(x,yy+rowh,sum(widths),lw=.5)
+        if row_idx:line(x,yy+rowh,sum(widths),color=theme()['border'],lw=.5)
 
 # 01 - source page identity
 sheet('DAY 1','EDA to Model Strategy','표지','cover')
@@ -149,12 +161,12 @@ question(2,'열화 곡선 - 방전 용량이 어떻게 감소하는가?')
 page('Q2','용량 감소와 급변 시점','끝 QD≤0.885 Ah: B1 36 / B2 39 / B3 44셀 · 진한 선=대표 셀 · 음영=초기 100사이클')
 pic('full_trajectories',34,132,894,267)
 text('용량은 후반에 더 빠르게 줄지만, 그 급변 시점은 예측 시점 이후에 보인다.',46,413,866,20,bold=True,leading=28)
-text('탐색 knee 중앙값: B1 579 / B2 361 / B3 827사이클. 전체 경로로 계산한 knee는 입력에서 제외한다.',46,469,866,12,TEAL,leading=18)
+text('탐색 knee 중앙값: B1 579 / B2 361 / B3 827사이클. 전체 경로로 계산한 knee는 입력에서 제외한다.',46,469,866,12,accent(),leading=18)
 
 # 08 - source page identity
 page('Q2 · 초기 열화 해석','기록 공백과 초기 변화','B2 레이블 39셀 모두 초기 구간에 약 65.4시간의 기록 간격')
 pic('review_gap_windows',39,137,650,277)
-text('구간을 바꾸니\n감소 방향도\n바뀌었다.',714,176,201,24,TEAL,bold=True,leading=36)
+text('구간을 바꾸니\n감소 방향도\n바뀌었다.',714,176,201,24,accent(),bold=True,leading=36)
 text('초기 용량 변화에는\n일시적 변동도\n섞여 있을 수 있다.',714,318,201,16,leading=26)
 takeaway('초기 용량 기울기를 일정한 열화 속도로 보기 어렵다. 주 입력에서는 보류한다.',y=435,h=60,size=17)
 text('기울기 단위: mAh/100사이클 · 양수=감소, 음수=증가',47,411,865,10,MUTED,leading=14)
@@ -164,7 +176,7 @@ question(3,'ΔQ(V) 곡선 - 초기 사이클에서 차이가 보이는가?')
 page('Q3','전압별 초기 신호','ΔQ(V)=Q100(V)-Q10(V) · 배치별 수명 상·하위 1/3 비교')
 pic('dq_all',36,137,889,270)
 text('총용량 변화보다, 전압에 따라 변화가 달라지는 모양을 후보로 삼았다.',46,418,868,20,bold=True,leading=28)
-text('짧은 수명 쪽의 변화 폭이 더 크다 → 1,000점 곡선을 분산 1개로 요약한다.',47,462,868,14,TEAL,leading=21)
+text('짧은 수명 쪽의 변화 폭이 더 크다 → 1,000점 곡선을 분산 1개로 요약한다.',47,462,868,14,accent(),leading=21)
 text('분산은 전압 1,000점의 ΔQ에 대해 계산(ddof=0). 평균·최솟값과의 중복은 Q5에서 확인한다.',47,488,868,9,MUTED,leading=12)
 
 # 12 - source page identity
@@ -172,7 +184,7 @@ question(4,'충전 조건 (C-rate)과 수명의 관계는?')
 page('Q4','충전 조건과 수명','정책별 평균·범위 · 상관은 셀 기준 · 녹색=newstructure · 정책표 A-2~A-3')
 pic('policy_mean_scatter',36,130,889,251)
 text('빠른 충전과 짧은 수명의 관계는 배치마다 달랐다.',45,395,870,20,bold=True,leading=29)
-text('첫 C-rate ↔ 수명: B1 -0.48 / B2 +0.06 / B3 -0.23',47,434,865,14,TEAL,bold=True)
+text('첫 C-rate ↔ 수명: B1 -0.48 / B2 +0.06 / B3 -0.23',47,434,865,14,accent(),bold=True)
 text('첫 C-rate ↔ 초기 ΔQ 분산: B1 +0.54 / B2 -0.03 / B3 +0.29',47,461,865,13,leading=19)
 text('같은 첫 C-rate에서도 전환 SOC·둘째 C-rate가 달라, 세 조건을 함께 비교한다.',47,489,865,9,MUTED,leading=12)
 
@@ -227,10 +239,10 @@ for x,head,body in [
     (40,'ΔQ 1개','log10 var(ΔQ)\n전압별 변화 폭을 요약한다.\n평균·최솟값은 중복이 커 함께 넣지 않는다.'),
     (492,'정책 3개','첫 C-rate · 둘째 C-rate · 전환 SOC\n충전 조건을 함께 반영해\nΔQ가 더하는 정보를 비교한다.'),
 ]:
-    C.setFillColor(HexColor(MINT));C.setStrokeColor(HexColor('#D5E6E0'));C.setLineWidth(.8)
+    C.setFillColor(HexColor(theme()['tint']));C.setStrokeColor(HexColor(theme()['border']));C.setLineWidth(.8)
     C.roundRect(x,H-193-150,428,150,11,fill=1,stroke=1)
     para(head,body,x+24,211,380,22,15)
-text('보류한 변수',49,362,862,13,TEAL,bold=True)
+text('보류한 변수',49,362,862,13,accent(),bold=True)
 text('용량 기울기·고전류 비율',49,393,270,15,bold=True)
 text('구간 또는 배치가 바뀌면 관계가 달라졌다.',331,393,579,15)
 text('QD·IR·온도·충전 시간',49,431,270,15,bold=True)
@@ -239,7 +251,7 @@ text('소표본에서 비교 수를 제한해 후속 후보로 둔다.',331,431,
 # 15 - source page identity
 page('설계','입력 변환과 관계 형태','B1 종료 근접 36셀')
 pic('question_input_transform',36,142,602,272)
-text('큰 분산값을 압축해\n단순한 관계부터\n검증한다.',670,161,244,23,TEAL,bold=True,leading=34)
+text('큰 분산값을 압축해\n단순한 관계부터\n검증한다.',670,161,244,23,accent(),bold=True,leading=34)
 text('입력 분산의 왜도\n+1.11 → 로그 후 +0.22',670,307,244,16,bold=True,leading=25)
 text('로그 후에도 정책 차이와\n남은 곡률은 따로 확인해야 한다.',670,386,244,13,MUTED,leading=21)
 takeaway('입력은 log10 var(ΔQ)로 구성한다. 수명 자체의 변환은 별도로 비교한다.',size=17)
@@ -251,19 +263,19 @@ page('Regression vs Classification','예측 방식과 타깃 선택')
 target_cards=[
     (137,'회귀 선택 이유','회귀로 총 Cycle Life를 예측한다.',
      '분류 기준 550사이클 미만은 B1에서 1셀뿐이다.\n이 표본으로 분류 경계를 학습하기 어렵다.',
-     '',MINT,'#D5E6E0'),
+     ''),
     (257,'예측할 값','초기 100사이클 기록 → 저장 cycle_life',
      '타깃은 총 사이클 수다.\nB1에서는 종료 수명의 근사값으로 사용한다.',
-     '',LIGHT,RULE),
+     ''),
     (377,'수명 변환 비교','원래 수명과 로그 수명을 비교한다.',
      'B1 종료 근접 36셀의 수명 왜도는 +0.30으로 크지 않다.\n원 단위로 복원한 MAPE로 선택한다.',
-     '입력 ΔQ의 로그 변환과 수명 변환은 별도로 판단한다.',LIGHT,RULE),
+     '입력 ΔQ의 로그 변환과 수명 변환은 별도로 판단한다.'),
 ]
-for y,label,head,body,note,fill,border in target_cards:
-    C.setFillColor(HexColor(fill));C.setStrokeColor(HexColor(border));C.setLineWidth(.8)
+for y,label,head,body,note in target_cards:
+    C.setFillColor(HexColor(theme()['tint']));C.setStrokeColor(HexColor(theme()['border']));C.setLineWidth(.8)
     C.roundRect(40,H-y-108,880,108,11,fill=1,stroke=1)
-    text(label,64,y+40,173,18,TEAL,bold=True,leading=26,maxh=27)
-    C.setStrokeColor(HexColor(border));C.line(253,H-y-22,253,H-y-86)
+    text(label,64,y+40,173,18,accent(),bold=True,leading=26,maxh=27)
+    C.setStrokeColor(HexColor(theme()['border']));C.line(253,H-y-22,253,H-y-86)
     text(head,278,y+15,616,19,bold=True,leading=27,maxh=28)
     text(body,278,y+46,616,14,leading=21,maxh=43)
     if note:text(note,278,y+88,616,10,MUTED,leading=14,maxh=15)
@@ -272,7 +284,7 @@ for y,label,head,body,note,fill,border in target_cards:
 page('Modeling Strategy · 레이블 처리','수명 레이블 점검','EOL 기준 QD <0.88 Ah · 종료 근접 점검선 0.885 Ah')
 pic('endpoint_labels',40,136,542,299)
 text('레이블 처리 후 학습 후보',623,145,290,14,MUTED,bold=True)
-text('46 → 36셀',619,178,300,34,TEAL,bold=True)
+text('46 → 36셀',619,178,300,34,accent(),bold=True)
 text('종료에서 멀리 끝난 10셀은\n수명 정답으로 쓰지 않는다.',623,242,290,19,bold=True,leading=28)
 text('36셀의 저장 수명을\n종료 수명의 근사값으로 사용한다.',623,329,289,15,leading=23)
 takeaway('레이블 신뢰도를 높이는 대신, 긴 수명·저속 충전 셀이 줄어드는 대가가 남는다.',size=17)
@@ -281,8 +293,8 @@ takeaway('레이블 신뢰도를 높이는 대신, 긴 수명·저속 충전 셀
 page('Modeling Strategy · 후보 모델','모델 선택 전략')
 text('적은 표본과 입력 중복을 고려해 Ridge부터 검증한다.',46,138,866,24,bold=True,leading=33)
 for x,n,head,body in [(47,'1','기준선','학습 수명의 1/y 가중 중앙값\n상수 예측보다 나은가?'),(345,'2','입력 비교','ΔQ만 / 정책만 / 결합\nΔQ가 실제로 보탬이 되는가?'),(643,'3','조건부 확장','검증 잔차에 곡률이 반복될 때\n깊이 2의 트리만 추가 비교')]:
-    line(x,215,270,TEAL,2);text(n,x,235,32,23,TEAL,bold=True);text(head,x+40,234,225,20,bold=True);text(body,x,282,267,15,leading=25)
-text('채택 기준',49,376,150,13,TEAL,bold=True)
+    line(x,215,270,accent(),2);text(n,x,235,32,23,accent(),bold=True);text(head,x+40,234,225,20,bold=True);text(body,x,282,267,15,leading=25)
+text('채택 기준',49,376,150,13,accent(),bold=True)
 text('같은 CV에서 평균 MAPE 1%p 이상 감소 + 4개 중 3개 폴드에서 개선.\n차이가 작으면 입력이 적은 모델을 유지한다.',49,406,862,18,bold=True,leading=28)
 text('비교 설정: α={0.1,1,10,100} · raw/log 수명 · 같은 정책 그룹 CV',49,480,864,10,MUTED,leading=14)
 
@@ -291,14 +303,14 @@ page('Modeling Strategy · 분할과 전처리','학습·검증 분할','정책 
 pic('review_split',36,137,547,238)
 para('이번 검증은\n더 짧은 수명의\n새 정책을 시험한다.','홀드아웃 오차에는 정책 변화와\n수명 분포 이동이 함께 반영된다.',618,145,295,23,15)
 line(48,390,863)
-text('학습 28셀 → 정책별 4-fold CV → 선택 고정 → 홀드아웃 → 같은 모델로 B2',48,412,864,17,TEAL,bold=True,leading=25)
+text('학습 28셀 → 정책별 4-fold CV → 선택 고정 → 홀드아웃 → 같은 모델로 B2',48,412,864,17,accent(),bold=True,leading=25)
 text('B2까지 학습 28셀을 유지해 평가 간 비교 조건을 맞춘다. 결측 대치·표준화는 각 학습 폴드에서만 계산한다.',48,462,864,13,leading=20)
 
 # 16 - source page identity
 page('Modeling Strategy · 적용 범위','다른 배치로 적용할 때','파란 영역은 고정 학습 풀 28셀의 ΔQ 분산 범위')
 pic('review_input_support',34,141,615,268)
 text('새 배치에는\n배우지 못한 입력이\n많이 들어온다.',684,159,232,23,bold=True,leading=34)
-text('ΔQ 분산만 보아도\n학습 범위 밖인 B2 셀\n<b>18 / 39</b>',684,313,232,18,TEAL,leading=29)
+text('ΔQ 분산만 보아도\n학습 범위 밖인 B2 셀\n<b>18 / 39</b>',684,313,232,18,accent(),leading=29)
 takeaway('범위 안·밖의 오차를 나눠 보고, 범위 밖 셀은 추가 확인 대상으로 표시한다.',size=18)
 text('입력 범위: 고정 학습 28셀의 변수별 최솟값~최댓값',45,411,868,10,MUTED,leading=14)
 
@@ -314,11 +326,11 @@ for y,head,choice,why in [
  (207,'입력','ΔQ만 / 정책만 / 결합','집단·정책 차이와 구분되는 추가 정보가 있는지 확인'),
  (279,'모델','총 수명 회귀 · Ridge','소표본과 입력 중복을 고려해 정규화부터 적용'),
  (351,'검증','새 정책 → 다른 배치','실험집단별·입력 범위 안팎의 오차를 구분')]:
-    text(head,49,y,125,17,TEAL,bold=True)
+    text(head,49,y,125,17,accent(),bold=True)
     text(choice,184,y-2,721,21,bold=True,leading=29)
     text(why,185,y+31,720,13,MUTED,leading=20)
 line(49,418,862)
-text('구간에 민감한 용량 기울기는 보류한다.\n검증 후 예측 수명이 짧은 셀의 점검 우선순위를 검토한다.',49,435,862,17,TEAL,bold=True,leading=25)
+text('구간에 민감한 용량 기울기는 보류한다.\n검증 후 예측 수명이 짧은 셀의 점검 우선순위를 검토한다.',49,435,862,17,accent(),bold=True,leading=25)
 
 # 02 - source page identity
 page('부록 · 데이터','배치별 구성','전체 139셀 · 수명 레이블 보유 129셀')
