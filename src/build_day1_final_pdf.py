@@ -25,7 +25,7 @@ def document_canvas(dest,title):
     c.setSubject('핵심 변수 분포와 해석, EDA에서 피처 설계 및 모델 선택으로의 연결')
     return c
 
-C=document_canvas(DEST,'EDA to Model Strategy | 초기 100사이클 기반 배터리 수명 예측')
+C=document_canvas(DEST,'배터리 수명 예측을 위한 EDA와 피처 설계 | EDA to Model Strategy')
 DOCUMENT='main';DOCUMENT_START=0
 PAGES=[];TEXT=[];INDEX=[]
 CHAPTER=0;CHAPTER_PAGE=0;QUESTION=0;QUESTION_PAGE=0
@@ -147,10 +147,10 @@ def table(headers,rows,x,y,widths,rowh=30,size=12,headsize=11):
         if row_idx:line(x,yy+rowh,sum(widths),color=theme()['border'],lw=.5)
 
 # 01 - source page identity
-sheet('DAY 1','EDA to Model Strategy','표지','cover')
-text('DAY 1',68,43,600,12,TEAL,bold=True)
-text('EDA to Model Strategy',65,88,844,45,bold=True,leading=58)
-text('초기 100사이클 기반 배터리 수명 예측',69,161,823,17,MUTED,leading=25)
+sheet('DAY 1','배터리 수명 예측을 위한 EDA와 피처 설계','표지','cover')
+text('DAY 1 · EDA to Model Strategy',68,36,800,12,TEAL,bold=True)
+text('배터리 수명 예측을 위한\nEDA와 피처 설계',65,80,844,40,bold=True,leading=53)
+text('초기 100사이클 · 충전 조건과 방전 곡선에서 모델 전략까지',69,204,823,16,MUTED,leading=23)
 line(69,254,824)
 for x,num,head,body,color in [(69,'01 · EDA','분포와 관계 탐색','Q1~Q5의 답을\n세 배치의 근거로 정리',BLUE),(350,'02 · EDA → 전략','관찰에서 선택으로','신호를 다시 검토하고\n남길 변수와 변환을 결정',TEAL),(631,'03 · 모델 설계','선택 근거와 검증','회귀·타깃을 정하고\n모델과 검증 조건을 설계',ROSE)]:
     text(num,x,280,250,15,color,bold=True);text(head,x,314,260,20,bold=True);text(body,x,356,258,16,leading=25)
@@ -202,18 +202,18 @@ text('기울기 단위: mAh/100사이클 · 양수=감소, 음수=증가',47,411
 question(3,'ΔQ(V) 곡선 - 초기 사이클에서 차이가 보이는가?')
 page('Q3','전압별 초기 신호','ΔQ(V)=Q100(V)-Q10(V) · 배치별 수명 상·하위 1/3 비교')
 pic('dq_all',36,137,889,270)
-text('총용량 변화보다, 전압에 따라 변화가 달라지는 모양을 후보로 삼았다.',46,418,868,20,bold=True,leading=28)
-text('짧은 수명 쪽의 변화 폭이 더 크다 → 1,000점 곡선을 분산 1개로 요약한다.',47,462,868,14,accent(),leading=21)
-text('분산은 전압 1,000점의 ΔQ에 대해 계산(ddof=0). 평균·최솟값과의 중복은 Q5에서 확인한다.',47,488,868,9,MUTED,leading=12)
+text('총용량이 비슷해도, 전극의 변화는 방전 곡선에 먼저 나타날 수 있다.',46,416,868,19,bold=True,leading=27)
+text('짧은 수명 쪽의 전압별 변화가 더 크다. 분산으로 변화의 불균일성을 요약한다.',47,457,868,14,accent(),leading=21)
+text('같은 방전 조건에서 비교 · 1,000개 전압점의 분산(ddof=0) · 물리적 해석: Severson et al. (2019), Fig. 2·4',47,486,868,10,MUTED,leading=13)
 
 # 12 - source page identity
 question(4,'충전 조건 (C-rate)과 수명의 관계는?')
-page('Q4','충전 조건과 수명','정책별 평균·범위 · 상관은 셀 기준 · 녹색=newstructure')
-pic('policy_mean_scatter',36,130,889,251)
-text('빠른 충전과 짧은 수명의 관계는 배치마다 달랐다.',45,395,870,20,bold=True,leading=29)
-text('첫 C-rate ↔ 수명: B1 -0.48 / B2 +0.06 / B3 -0.23',47,434,865,14,accent(),bold=True)
-text('첫 C-rate ↔ 초기 ΔQ 분산: B1 +0.54 / B2 -0.03 / B3 +0.29',47,461,865,13,leading=19)
-text('같은 첫 C-rate에서도 전환 SOC·둘째 C-rate가 달라, 세 조건을 함께 비교한다.',47,489,865,9,MUTED,leading=12)
+page('Q4','충전 속도와 최대 전류','B1 종료 근접 36셀 / B3 44셀 · 점=정책 평균, 선=최소~최대 · 상관은 셀 기준 Spearman')
+pic('domain_charging_policy',36,129,889,237)
+text('충전 시간이 비슷해도, 최대 전류가 큰 정책에서 수명이 짧았다.',46,369,868,18,bold=True,leading=25)
+text('초기 ΔQ 분산과의 상관도 B1 평균 C +0.55 / B3 최대 C +0.68로 같은 방향이다.',47,402,866,13,leading=20)
+text('평균 C: SOC별 정책상 시간을 환산 · B2·B3는 약 4.8C로 같아 평균의 미세 차이는 해석하지 않는다.',47,430,866,10,MUTED,leading=14)
+takeaway('충전 속도와 전류 피크를 분리한 파생 변수를 정책 표현의 후보로 둔다.',y=453,h=41,size=16)
 
 # 05 - source page identity
 page('Q4 · 같은 조건 비교','같은 충전 조건의 배치 비교','4.8C(80%)-4.8C 고정 · 점은 평균, 선은 관측 범위')
@@ -261,20 +261,21 @@ takeaway('정책만 / ΔQ만 / 결합을 비교해, ΔQ가 더하는 예측 정�
 
 # Feature Engineering: observation, role, and deferral are explicit.
 page('Feature Engineering','피처 선택 전략')
-text('첫 비교는 ΔQ 1개 / 정책 3개 / 결합 4개로 좁힌다.',46,138,868,23,bold=True,leading=32)
+text('충전 정책은 원래 3개 변수와 파생 2개 변수로 대체 비교한다.',46,128,868,21,bold=True,leading=30)
 for x,head,body in [
-    (40,'ΔQ 1개','log10 var(ΔQ)\n전압별 변화 폭을 요약한다.\n평균·최솟값은 중복이 커 함께 넣지 않는다.'),
-    (492,'정책 3개','첫 C-rate · 둘째 C-rate · 전환 SOC\n충전 조건을 함께 반영해\nΔQ가 더하는 정보를 비교한다.'),
+    (40,'셀의 초기 반응 · ΔQ 1개','log10 var(ΔQ)\n전압별 변화의 불균일성을 요약한다.\n평균·최솟값은 중복이 커 함께 넣지 않는다.'),
+    (492,'가한 충전 조건 · 두 표현','원정책: 첫 C · 둘째 C · 전환 SOC\n파생정책: 명목 평균 C · 최대 C\n속도·피크를 요약하되, SOC 순서는 잃는다.'),
 ]:
     C.setFillColor(HexColor(theme()['tint']));C.setStrokeColor(HexColor(theme()['border']));C.setLineWidth(.8)
-    C.roundRect(x,H-193-150,428,150,11,fill=1,stroke=1)
-    para(head,body,x+24,211,380,22,15)
-text('ΔQ를 남긴 근거',49,362,244,15,accent(),bold=True)
-text('B2 구간별 상관: 10→100 -0.71 / 10→40 -0.38 / 80→100 -0.64',291,362,619,13,leading=20)
-text('강도는 구간에 민감하지만 방향은 같다. 후보로 유지해 추가 예측력을 비교한다.',291,389,619,14,bold=True,leading=21)
-line(49,423,862)
-text('보류한 변수',49,440,226,15,accent(),bold=True)
-text('용량 기울기·고전류 비율: 구간·배치에 따라 관계 방향이 달라졌다.\nQD·IR·온도·충전 시간: 소표본에서 첫 비교의 수를 제한한다.',291,439,619,13,leading=23)
+    C.roundRect(x,H-177-154,428,154,11,fill=1,stroke=1)
+    para(head,body,x+24,195,380,20,14)
+text('평균 C = 0.8 / [s/C1 + (0.8-s)/C2],  s=전환 SOC/100',516,309,380,10,MUTED,leading=14)
+text('5개 입력 구성',49,354,190,14,accent(),bold=True)
+text('ΔQ / 원정책 / 파생정책 / ΔQ+원정책 / ΔQ+파생정책',245,354,665,14,bold=True,leading=21)
+text('같은 정책 그룹 CV에서 표현의 차이와 ΔQ의 추가 이득을 나눠 본다.',245,383,665,14,leading=21)
+line(49,419,862)
+text('유지·보류 근거',49,438,190,14,accent(),bold=True)
+text('ΔQ: B2 세 구간 상관 -0.71 / -0.38 / -0.64 → 방향 유지로 후보 유지\n기울기·고전류 비율: 구간·배치에 민감 / QD·IR·온도·시간: 첫 비교에서 보류',245,437,665,12,leading=22)
 
 # 15 - source page identity
 page('설계','입력 변환과 관계 형태','B1 종료 근접 36셀')
@@ -321,17 +322,17 @@ takeaway('종료 근접 36셀을 학습·검증에 쓰고, 줄어든 장수명·
 page('Modeling Strategy · 선정 근거','모델 선택 근거')
 table(['EDA에서 확인한 근거','모델에 필요한 조건','설계 결정'],[
     ['학습 28셀, CV 학습은 21셀\n후보 36셀: 첫 C-rate-SOC ρ=-0.88',
-     '적은 표본에서 계수가 크게\n흔들리지 않도록 제약',
-     'L2 정규화로 계수 축소\nRidge를 우선 후보로 설정'],
+     '충전의 비선형 조합은 피처로 계산\n계수의 변동은 정규화로 제약',
+     'Ridge로 두 정책 표현을 비교\n각 표현에 ΔQ의 추가 이득 검증'],
     ['정책 내부 ΔQ 상관 -0.11\n입력별 추가 기여는 검증 대상',
      '일부 계수를 0으로 줄이는 것이\n예측에 도움이 되는지 비교',
      'L1+L2 정규화로 선택·축소\nElastic Net을 보조 후보로 설정'],
     ['입력 로그 변환: 왜도 +1.11→+0.22\n변환 후에도 관계 형태 점검 필요',
      '선형 추세를 먼저 검증하고\n남는 비선형에만 복잡도 추가',
      '검증 잔차에 곡률이 반복되면\n얕은 회귀트리를 추가 비교'],
-    ['같은 정책에서도 배치 차이 존재\n입력 4개 기준 B2 범위 밖 29/39셀',
+    ['같은 정책에서도 배치 차이 존재\n파생 표현에도 ΔQ 범위 밖 18/39셀',
      '입력의 추가 정보와\n새 조건에서의 오차를 구분',
-     '입력 3구성·정책 그룹 검증\n집단별·입력 범위별 성능 보고'],
+     '입력 5구성·정책 그룹 검증\n집단별·입력 범위별 성능 보고'],
 ],44,132,[305,285,282],rowh=59,size=13,headsize=13)
 takeaway('정규화 회귀로 기준을 세우고, 변수 축소와 비선형의 이득을 각각 검증한다.',y=448,h=46,size=16)
 
@@ -346,11 +347,13 @@ text('B2까지 학습 28셀을 유지해 평가 간 비교 조건을 맞춘다. 
 # 16 - source page identity
 page('Modeling Strategy · 적용 범위','다른 배치로 적용할 때','파란 영역: 고정 학습 28셀의 변수별 최솟값~최댓값')
 pic('question_selected_input_support',34,142,610,265)
-text('입력 4개 중 하나라도\n학습 범위 밖인 B2 셀',679,151,238,16,MUTED,leading=25)
-text('29 / 39셀',675,217,245,34,accent(),bold=True,leading=46)
-text('정책 변수의 차이도 크다.\n정책을 넣은 모델 역시\n새 충전 조건에서의\n성능을 확인해야 한다.',679,295,238,17,bold=True,leading=27)
-text('비교 입력: ΔQ 분산 · 첫 C-rate · 둘째 C-rate · 전환 SOC',45,412,868,11,MUTED,leading=16)
-takeaway('후보별로 전체·범위 밖 오차를 함께 보고, 범위 밖 셀은 추가 확인 대상으로 둔다.',size=16)
+text('원정책+ΔQ · 4개 입력 범위 밖',675,151,241,13,MUTED,leading=19)
+text('29 / 39셀',675,178,245,29,accent(),bold=True,leading=40)
+text('파생정책+ΔQ · 3개 입력 범위 밖',675,237,241,13,MUTED,leading=19)
+text('18 / 39셀',675,264,245,29,accent(),bold=True,leading=40)
+text('요약값이 같아도 전류가\n높았던 SOC 구간은 다를 수 있다.\n원래 충전 조건도 함께 평가한다.',675,330,241,14,bold=True,leading=22)
+text('B2 평균 C·최대 C의 범위 이탈은 0셀. 파생 표현의 18셀은 모두 ΔQ 범위 이탈이다.',45,412,868,11,MUTED,leading=16)
+takeaway('범위 판정은 표현에 따라 달라진다. 오차는 사용 입력과 원래 정책별로 함께 본다.',size=16)
 
 # 19 - source page identity
 page('Modeling Strategy · 평가','성능 평가 계획')
@@ -366,9 +369,9 @@ for x,w,label in [(52,172,'후보·역할'),(237,343,'이 데이터에서 기대
     text(label,x,179,w,13,'#FFFFFF',bold=True,leading=18)
 model_rows=[
     ('Ridge','우선 후보','소표본·정책 변수 중복에 대응\n계수 크기를 제약해 추세를 안정화',
-     'ΔQ / 정책 / 결합 모두 비교\n이후 후보의 성능 기준으로 사용'),
+     'ΔQ와 두 정책 표현: 5개 구성 비교\n이후 후보의 성능 기준으로 사용'),
     ('Elastic Net','보조 후보','일부 입력의 계수를 0으로 축소\nRidge 대비 변수 선택의 이득 검증',
-     '정책 3개·결합 4개에서 비교\n폴드별 선택 변수의 일관성도 확인'),
+     'Ridge에서 선택한 다변수 입력으로 비교\n폴드별 선택 변수의 일관성도 확인'),
     ('얕은 회귀트리','조건부 후보','전류 조건과 ΔQ의 구간별 관계를\n단순 분기·상호작용으로 표현',
      '선형 모델의 검증 잔차에 곡률 반복 시\n깊이 2·리프 최소 5셀로 비교'),
 ]

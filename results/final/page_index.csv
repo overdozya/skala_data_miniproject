@@ -1,5 +1,5 @@
 sequence,document,page,number,chapter,kind,section,title
-1,main,1,표지,0,cover,DAY 1,EDA to Model Strategy
+1,main,1,표지,0,cover,DAY 1,배터리 수명 예측을 위한 EDA와 피처 설계
 2,main,2,01,1,divider,EDA,분포와 관계 탐색
 3,main,3,,1,context,분석 범위,분석 대상
 4,main,4,Q1,1,question,Q1,Q1. Cycle Life 분포는 어떻게 생겼는가?
@@ -11,7 +11,7 @@ sequence,document,page,number,chapter,kind,section,title
 10,main,10,Q3,1,question,Q3,Q3. ΔQ(V) 곡선 - 초기 사이클에서 차이가 보이는가?
 11,main,11,Q3-1,1,body,Q3,전압별 초기 신호
 12,main,12,Q4,1,question,Q4,Q4. 충전 조건 (C-rate)과 수명의 관계는?
-13,main,13,Q4-1,1,body,Q4,충전 조건과 수명
+13,main,13,Q4-1,1,body,Q4,충전 속도와 최대 전류
 14,main,14,Q4-2,1,body,Q4 · 같은 조건 비교,같은 충전 조건의 배치 비교
 15,main,15,Q4-3,1,body,Q4 · 전류 패턴과 열화,실제 전류 패턴
 16,main,16,Q5,1,question,Q5,Q5. 상관관계 - 어떤 신호가 수명과 연관되어 있는가?

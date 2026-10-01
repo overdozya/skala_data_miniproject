@@ -1,0 +1,10 @@
+{
+  "formula": "t80_h = s/C1 + (0.8-s)/C2; Cavg=0.8/t80_h; Cmax=max(active C1,C2)",
+  "interpretation": "Nominal 0-80% CC duration, not measured total charge time or degradation dose.",
+  "b1_n": 36,
+  "b3_n": 44,
+  "b1_average_life_rho": -0.4359950079618398,
+  "b1_average_dq_rho": 0.5532646954128427,
+  "b3_maximum_life_rho": -0.6070241729582949,
+  "b3_maximum_dq_rho": 0.6783738277673707
+}

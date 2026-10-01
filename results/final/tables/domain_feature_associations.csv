@@ -1,0 +1,73 @@
+cohort,n,policies,feature,minimum,maximum,target,spearman_rho,interpretable_range
+B1 all 46,46,23,first_c_rate,3.6,8.0,cycle_life,-0.48271400298540956,True
+B1 all 46,46,23,first_c_rate,3.6,8.0,log10_dq_var,0.5395785716597657,True
+B1 all 46,46,23,first_c_rate,3.6,8.0,early_qd_loss_robust_per_100_cycles,0.38351467795662453,True
+B1 all 46,46,23,second_c_rate,3.0,5.4,cycle_life,0.04741433338534666,True
+B1 all 46,46,23,second_c_rate,3.0,5.4,log10_dq_var,-0.0659994201603806,True
+B1 all 46,46,23,second_c_rate,3.0,5.4,early_qd_loss_robust_per_100_cycles,0.10386008338516325,True
+B1 all 46,46,23,nominal_avg_c,3.5999999999999996,5.3999999999999995,cycle_life,-0.6344798048406834,True
+B1 all 46,46,23,nominal_avg_c,3.5999999999999996,5.3999999999999995,log10_dq_var,0.6683014461220739,True
+B1 all 46,46,23,nominal_avg_c,3.5999999999999996,5.3999999999999995,early_qd_loss_robust_per_100_cycles,0.4865551469543813,True
+B1 all 46,46,23,max_c,3.6,8.0,cycle_life,-0.48271400298540956,True
+B1 all 46,46,23,max_c,3.6,8.0,log10_dq_var,0.5395785716597657,True
+B1 all 46,46,23,max_c,3.6,8.0,early_qd_loss_robust_per_100_cycles,0.38351467795662453,True
+B1 near EOL 36,36,20,first_c_rate,4.4,8.0,cycle_life,-0.23741033250727675,True
+B1 near EOL 36,36,20,first_c_rate,4.4,8.0,log10_dq_var,0.27299669102954965,True
+B1 near EOL 36,36,20,first_c_rate,4.4,8.0,early_qd_loss_robust_per_100_cycles,0.12933516703294992,True
+B1 near EOL 36,36,20,second_c_rate,3.0,5.4,cycle_life,-0.16124117981690955,True
+B1 near EOL 36,36,20,second_c_rate,3.0,5.4,log10_dq_var,0.12275379859089929,True
+B1 near EOL 36,36,20,second_c_rate,3.0,5.4,early_qd_loss_robust_per_100_cycles,0.25837694703407027,True
+B1 near EOL 36,36,20,nominal_avg_c,4.0,5.3999999999999995,cycle_life,-0.4359950079618398,True
+B1 near EOL 36,36,20,nominal_avg_c,4.0,5.3999999999999995,log10_dq_var,0.5532646954128427,True
+B1 near EOL 36,36,20,nominal_avg_c,4.0,5.3999999999999995,early_qd_loss_robust_per_100_cycles,0.47681828550802374,True
+B1 near EOL 36,36,20,max_c,4.4,8.0,cycle_life,-0.23741033250727675,True
+B1 near EOL 36,36,20,max_c,4.4,8.0,log10_dq_var,0.27299669102954965,True
+B1 near EOL 36,36,20,max_c,4.4,8.0,early_qd_loss_robust_per_100_cycles,0.12933516703294992,True
+B2 all 39,39,12,first_c_rate,3.6,6.0,cycle_life,0.05509278655119761,True
+B2 all 39,39,12,first_c_rate,3.6,6.0,log10_dq_var,-0.02785541943465776,True
+B2 all 39,39,12,first_c_rate,3.6,6.0,early_qd_loss_robust_per_100_cycles,0.04313432487083198,True
+B2 all 39,39,12,second_c_rate,3.0,6.0,cycle_life,-0.11884016238051073,True
+B2 all 39,39,12,second_c_rate,3.0,6.0,log10_dq_var,0.2017816832993581,True
+B2 all 39,39,12,second_c_rate,3.0,6.0,early_qd_loss_robust_per_100_cycles,0.16107585212944175,True
+B2 all 39,39,12,nominal_avg_c,4.790419161676646,4.8068669527897,cycle_life,0.32079048769847657,False
+B2 all 39,39,12,nominal_avg_c,4.790419161676646,4.8068669527897,log10_dq_var,0.0025784406541986718,False
+B2 all 39,39,12,nominal_avg_c,4.790419161676646,4.8068669527897,early_qd_loss_robust_per_100_cycles,0.36830446304573833,False
+B2 all 39,39,12,max_c,4.8,6.0,cycle_life,-0.35908307144841967,True
+B2 all 39,39,12,max_c,4.8,6.0,log10_dq_var,0.4604123803320256,True
+B2 all 39,39,12,max_c,4.8,6.0,early_qd_loss_robust_per_100_cycles,0.3641462293810482,True
+B2 standard 30,30,9,first_c_rate,3.6,6.0,cycle_life,-0.06143442987833538,True
+B2 standard 30,30,9,first_c_rate,3.6,6.0,log10_dq_var,0.12352397505349669,True
+B2 standard 30,30,9,first_c_rate,3.6,6.0,early_qd_loss_robust_per_100_cycles,-0.021838492827137533,True
+B2 standard 30,30,9,second_c_rate,3.0,6.0,cycle_life,-0.04278609008555596,True
+B2 standard 30,30,9,second_c_rate,3.0,6.0,log10_dq_var,0.21095603417461617,True
+B2 standard 30,30,9,second_c_rate,3.0,6.0,early_qd_loss_robust_per_100_cycles,0.28502704297232023,True
+B2 standard 30,30,9,nominal_avg_c,4.790419161676646,4.8068669527897,cycle_life,0.20694760652615804,False
+B2 standard 30,30,9,nominal_avg_c,4.790419161676646,4.8068669527897,log10_dq_var,0.3630366554895513,False
+B2 standard 30,30,9,nominal_avg_c,4.790419161676646,4.8068669527897,early_qd_loss_robust_per_100_cycles,0.2998606060569382,False
+B2 standard 30,30,9,max_c,4.8,6.0,cycle_life,-0.4609089067160364,True
+B2 standard 30,30,9,max_c,4.8,6.0,log10_dq_var,0.6243698017761551,True
+B2 standard 30,30,9,max_c,4.8,6.0,early_qd_loss_robust_per_100_cycles,0.48726850441865804,True
+B2 newstructure 9,9,3,first_c_rate,4.8,5.6,cycle_life,0.3162277660168379,True
+B2 newstructure 9,9,3,first_c_rate,4.8,5.6,log10_dq_var,-0.3162277660168379,True
+B2 newstructure 9,9,3,first_c_rate,4.8,5.6,early_qd_loss_robust_per_100_cycles,-0.10540925533894596,True
+B2 newstructure 9,9,3,second_c_rate,4.0,4.8,cycle_life,-0.3162277660168379,True
+B2 newstructure 9,9,3,second_c_rate,4.0,4.8,log10_dq_var,0.0,True
+B2 newstructure 9,9,3,second_c_rate,4.0,4.8,early_qd_loss_robust_per_100_cycles,0.3689323936863109,True
+B2 newstructure 9,9,3,nominal_avg_c,4.799999999999999,4.8068669527897,cycle_life,0.3162277660168379,False
+B2 newstructure 9,9,3,nominal_avg_c,4.799999999999999,4.8068669527897,log10_dq_var,-0.3162277660168379,False
+B2 newstructure 9,9,3,nominal_avg_c,4.799999999999999,4.8068669527897,early_qd_loss_robust_per_100_cycles,-0.10540925533894596,False
+B2 newstructure 9,9,3,max_c,4.8,5.6,cycle_life,0.3162277660168379,True
+B2 newstructure 9,9,3,max_c,4.8,5.6,log10_dq_var,-0.3162277660168379,True
+B2 newstructure 9,9,3,max_c,4.8,5.6,early_qd_loss_robust_per_100_cycles,-0.10540925533894596,True
+B3 44,44,8,first_c_rate,3.7,5.9,cycle_life,-0.22887519748075072,True
+B3 44,44,8,first_c_rate,3.7,5.9,log10_dq_var,0.2893377946420952,True
+B3 44,44,8,first_c_rate,3.7,5.9,early_qd_loss_robust_per_100_cycles,0.13841373132325469,True
+B3 44,44,8,second_c_rate,3.1,5.9,cycle_life,0.015736317835818345,True
+B3 44,44,8,second_c_rate,3.1,5.9,log10_dq_var,-0.07747682497360393,True
+B3 44,44,8,second_c_rate,3.1,5.9,early_qd_loss_robust_per_100_cycles,0.2314856355918654,True
+B3 44,44,8,nominal_avg_c,4.7936687394007915,4.813157894736842,cycle_life,-0.13205193371079488,False
+B3 44,44,8,nominal_avg_c,4.7936687394007915,4.813157894736842,log10_dq_var,0.030825406666132437,False
+B3 44,44,8,nominal_avg_c,4.7936687394007915,4.813157894736842,early_qd_loss_robust_per_100_cycles,0.030754051558108984,False
+B3 44,44,8,max_c,4.8,5.9,cycle_life,-0.6070241729582949,True
+B3 44,44,8,max_c,4.8,5.9,log10_dq_var,0.6783738277673707,True
+B3 44,44,8,max_c,4.8,5.9,early_qd_loss_robust_per_100_cycles,0.5160653131340264,True
