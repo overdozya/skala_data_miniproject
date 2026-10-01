@@ -1,0 +1,1 @@
+# skala_data_miniproject
